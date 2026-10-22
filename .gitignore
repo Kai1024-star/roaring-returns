@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.mpl-cache/
+data/raw/
+data/processed/
+reports/runs/
+.DS_Store
