@@ -1,0 +1,80 @@
+{
+  "source": "Yahoo Finance public chart endpoint",
+  "schema_version": 1,
+  "purpose": "private research; no raw-data redistribution assumed",
+  "price_convention": "vendor adjusted-close total-return proxy; not historical executable share prices",
+  "distribution_convention": "implicit reinvestment in original asset; never added as separate cash",
+  "pay_dates_available": false,
+  "independent_provider_validated": false,
+  "internal_return_audit": {
+    "QQQ": {
+      "max_proxy_vs_reconstructed_difference": 7.066263432520259e-05,
+      "max_vendor_backadjustment_convention_difference": 1.429853745404941e-06,
+      "max_non_distribution_difference": 1.429853745404941e-06,
+      "note": "same-vendor internal consistency only; conventions differ on distribution dates"
+    },
+    "GLD": {
+      "max_proxy_vs_reconstructed_difference": 0.0,
+      "max_vendor_backadjustment_convention_difference": 0.0,
+      "max_non_distribution_difference": 0.0,
+      "note": "same-vendor internal consistency only; conventions differ on distribution dates"
+    },
+    "IEF": {
+      "max_proxy_vs_reconstructed_difference": 4.705165441942771e-05,
+      "max_vendor_backadjustment_convention_difference": 1.7785348233045895e-06,
+      "max_non_distribution_difference": 1.7785348233045895e-06,
+      "note": "same-vendor internal consistency only; conventions differ on distribution dates"
+    }
+  },
+  "files": [
+    {
+      "symbol": "QQQ",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1101859200&period2=1767225600&interval=1d&events=div%2Csplits",
+      "file": "data/raw/QQQ.yahoo.json",
+      "sha256": "3ee26974f21ebf234befb7231c75fecb893c4807a47ab061c4e7a4439654306a",
+      "fetched_at_utc": "2026-10-22T06:13:06.210248+00:00",
+      "first_date": "2004-12-01",
+      "last_date": "2025-12-31",
+      "rows": 5305,
+      "dividend_events": 86,
+      "split_events": 0
+    },
+    {
+      "symbol": "GLD",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1101859200&period2=1767225600&interval=1d&events=div%2Csplits",
+      "file": "data/raw/GLD.yahoo.json",
+      "sha256": "2fc6931ee02784e29a0213af2a6da3d5ca3d5472d410fafcc13382cfb1ab7071",
+      "fetched_at_utc": "2026-10-22T06:13:06.461152+00:00",
+      "first_date": "2004-12-01",
+      "last_date": "2025-12-31",
+      "rows": 5305,
+      "dividend_events": 0,
+      "split_events": 0
+    },
+    {
+      "symbol": "IEF",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/IEF?period1=1101859200&period2=1767225600&interval=1d&events=div%2Csplits",
+      "file": "data/raw/IEF.yahoo.json",
+      "sha256": "844d79d8e65928528695bc6dccb8cb11d7b704349fc712af560bacb515981dbf",
+      "fetched_at_utc": "2026-10-22T06:13:06.762082+00:00",
+      "first_date": "2004-12-01",
+      "last_date": "2025-12-31",
+      "rows": 5305,
+      "dividend_events": 254,
+      "split_events": 0
+    }
+  ],
+  "processed_file": "data/processed/total_return_indices.csv",
+  "processed_sha256": "49269e7636729f91a288d37d5fa7dbe9bbcf874e1eddefc381cf3fd64fd6dd03",
+  "common_rows": 5284,
+  "max_absolute_daily_return": {
+    "QQQ": 0.12164743762080632,
+    "GLD": 0.11290530102327678,
+    "IEF": 0.03426226169930402
+  },
+  "software": {
+    "python": "3.12.10",
+    "pandas": "3.0.2",
+    "numpy": "2.4.2"
+  }
+}

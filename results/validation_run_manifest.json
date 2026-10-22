@@ -1,0 +1,45 @@
+{
+  "package_version": "0.1.0",
+  "split": "validation",
+  "start": "2015-01-01",
+  "end": "2019-12-31",
+  "protocol_sha256": "7aa19706375d0cd2652c6f7e0eb0f3f8119e2086b6c9552f4108b3785b7da6b3",
+  "data_sha256": "49269e7636729f91a288d37d5fa7dbe9bbcf874e1eddefc381cf3fd64fd6dd03",
+  "code_sha256": {
+    "__init__.py": "2248fe44e51f854f93525f72788c2b542cb58e05dd63fa4dbdc9f03a0b130ce7",
+    "__main__.py": "5f9fc5480c8031771172a770e36330c6a05370a4706dabc5ba386c0e1f181fb4",
+    "data.py": "c89333e3e49ef6d4a96912bf25400a108e3b2312b7c51279bc9af6c7536cb2d1",
+    "engine.py": "46943259afe95b523671425287c3fbe0a32b7b8c4ca94f1b87bc57acc703b79d",
+    "experiments.py": "daad0075a543b4a77fae12b71968ecc4582a97b6288268c89f1bd20ababbbdd2",
+    "policies.py": "43ecc3ff3a3079954551944996333cfd946358d39a87214a9d7a7b7da6a26686"
+  },
+  "sessions": 1259,
+  "scenario_count": 45,
+  "assets": [
+    "QQQ",
+    "GLD",
+    "IEF"
+  ],
+  "target": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+  ],
+  "band": 0.05,
+  "band_sensitivity": [
+    0.02,
+    0.05,
+    0.1
+  ],
+  "representative_initial_wealth": 10000,
+  "representative_monthly_contribution": 100,
+  "limitations": [
+    "retrospective chosen ETF universe",
+    "single public vendor; not independently certified",
+    "total-return-unit fractional model; no whole-share or tax claims",
+    "lagged close dollar fills; idealized liquidity, no market impact",
+    "zero cash interest; distributions implicitly reinvested in original asset",
+    "minimum-sale theorem applies at signal prices without costs, not at delayed fills"
+  ],
+  "execution": "previous_close_dollar_plan_next_session_close"
+}

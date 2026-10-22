@@ -1,0 +1,11 @@
+{
+  "python": "3.12.10",
+  "packages": {
+    "numpy": "2.4.2",
+    "pandas": "3.0.2",
+    "requests": "2.33.1",
+    "matplotlib": "3.10.8",
+    "scipy": "1.17.1"
+  },
+  "note": "Observed environment used for first run; notebook frontend optional, not installed by this project."
+}
