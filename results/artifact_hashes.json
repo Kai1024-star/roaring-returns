@@ -1,6 +1,9 @@
 {
-  "README.md": "942876a72e00a5276903d3e7760ba15f6d61594d995a4542f6c2b22d3372a558",
+  "README.md": "8cd9980eec9d27fa055bdd329026ca31676da8e98ca22474d9d550ac8ccc9ff1",
   "all_baseline_summary.csv": "91ec8e0a13ccd45da60847af13d07dfb7b8303a78ce43a21b3ba8cda783090ef",
+  "buy_only_reachability.csv": "a7a513333feb19e653a59c7f18d7d98183a1d080c6fd6b27c3e1595ffb68e099",
+  "contribution_primary.png": "9d76ca79eac4068a5741871da47f161e1eacb27cf15a4e7c10c8b0334c3b3465",
+  "cross_band_comparison.csv": "a4c61debe8330b795dec5cdf60c93520c6fec8f30134cac2f5db8f71402982bc",
   "development_RESEARCH_REPORT.md": "fe256d82a9f6e5f01d713663f01a39d60a38af38d9f2a820b0dfe22cee2c4b42",
   "development_band_sensitivity.csv": "18002c8e352ca33a67f35787640ed0b8376c652824a77ed673df0b13024cde63",
   "development_band_sensitivity.png": "08d68d667c6c04d5cdbb6b305cf247962e443a662c68c4201f0b73dbaf5c8af9",
@@ -23,6 +26,7 @@
   "evaluation_return_and_drift.png": "cbd7822d529e3e9c5fb41ab7352a6782ef79272012deea756e1b853c688ca4d9",
   "evaluation_run_manifest.json": "682a8e9216d2da0aa1f454ff44d555f77fab0b107c63f08879ed498b1fcd9738",
   "evaluation_summary.csv": "4bd3ece71cbdbcdcfd73d09e4b61cabd963c8860fbb08a6e56dd7ac84104311c",
+  "execution_audit.csv": "4e6ffdd1d9064c75fd73a73d9399272d54d22d5ec49f162011d265fbe1721519",
   "period_comparison.png": "08df26ff4581b1f3a706df4ac44c635e1607da9c09cc11bdf3472f3e82700c3a",
   "representative_summary.csv": "bc8f3fb2244495ab53e643b388edb64ed8bc631a35679e554785ea9d92cdfe96",
   "validation_RESEARCH_REPORT.md": "d54544c9d0d4f434a9d49c11cc83adfc5692f9aaf87f14b5a55fc52d101954ab",

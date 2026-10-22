@@ -1,0 +1,4 @@
+split,exact_target_reachable_fraction,band_reachable_fraction,first_C_over_signal_wealth,last_C_over_signal_wealth
+development,0.025,0.625,0.01,0.00220627380092
+validation,0.0166666666667,0.85,0.01,0.00452178558119
+evaluation,0.0416666666667,0.694444444444,0.01,0.00307457049857

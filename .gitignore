@@ -7,3 +7,7 @@ data/raw/
 data/processed/
 reports/runs/
 .DS_Store
+build/
+dist/
+*.whl
+*.zip

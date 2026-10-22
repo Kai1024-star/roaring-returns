@@ -1,5 +1,7 @@
 # Roaring Returns
 
+[![Offline research checks](https://github.com/Kai1024-star/roaring-returns/actions/workflows/tests.yml/badge.svg)](https://github.com/Kai1024-star/roaring-returns/actions/workflows/tests.yml)
+
 A Python personal research project on contribution-aware portfolio rebalancing.
 The research question is how allocation drift and required selling change with
 monthly contributions relative to wealth. The focus is portfolio implementation: allocating new cash, measuring drift,
@@ -20,6 +22,12 @@ Each historical segment has 45 main cases, 15 band-sensitivity cases, and five
 cost-stress cases. Results are descriptive, without statistical confidence
 intervals or a prospective trading record. Parameters remain unchanged across
 segments. There is no claim of alpha, novelty, or universal superiority.
+
+For the USD 10,000 + USD 100/month account, the 5pp minimum-sale plan used
+less selling but had greater drift than a 5pp center reset in every segment.
+Across different widths that summary changes: 2pp minimum-sale cases had lower
+RMS and lower dollar sales than 5pp center resets, while selling more often.
+[Read the counts, overshoot sizes, and cash-flow results](results/README.md).
 
 ## Quick start
 

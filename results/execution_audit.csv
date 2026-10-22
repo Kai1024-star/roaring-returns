@@ -1,0 +1,4 @@
+split,selling_months,outside_selling_months,all_months,outside_all_months,median_overshoot_pp,max_overshoot_pp
+development,21,11,120,11,0.35272038184,0.88804313373
+validation,4,2,60,4,0.24243432424,0.28199095387
+evaluation,11,7,72,10,0.08273621404,0.74939310138

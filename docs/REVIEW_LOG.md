@@ -57,3 +57,15 @@ relative links are exported to results/; detailed local ledgers stay excluded.
 The initial protocol and source hashes preserve the pre-Git experimental state.
 Output overwrite protection, a zero-selling nan display edge case, bootstrap
 inference, and a newer-data snapshot remain engineering/research follow-ups.
+
+## Final cross-period result review
+
+Claude recomputed the public tables, manifest hashes, and selling-month band
+violations from local outputs. All numerical checks agreed. The publication
+now adds (1) cash-flow-intensity and carried-state reachability summaries,
+(2) counts and overshoot magnitudes alongside violation rates, and (3) the
+2pp minimum-sale versus 5pp center-reset comparison, including selling frequency.
+It also discloses duplicate 10pp outcomes and post-generation prose/link edits.
+A new contribution map uses the primary common-signal RMS metric; the original
+daily band-exposure maps remain clearly secondary. No policy, target, band,
+source numerical module, or data snapshot changed in this presentation update.
