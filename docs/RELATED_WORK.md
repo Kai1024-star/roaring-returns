@@ -18,3 +18,8 @@ implementation or endorsement of its findings.
 
 No literature novelty claim is made. A fuller review and verified second-source
 data are required before treating this as publication-quality financial research.
+
+See the [October 2026 research reading guide](LITERATURE_REVIEW_2026-10-22.md)
+for selected optimization/ML papers, primary-source links, reproduction access
+requirements, and the distinction between fixed-target execution and dynamic
+portfolio selection. It is an AI-assisted screening, not reproduced paper results.
