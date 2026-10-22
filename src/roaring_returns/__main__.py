@@ -6,7 +6,7 @@ from .experiments import run_experiments
 
 def main():
     parser = argparse.ArgumentParser(description="Cash-flow rebalancing research prototype")
-    parser.add_argument("command", choices=["fetch", "run", "research", "demo"])
+    parser.add_argument("command", choices=["fetch", "fetch-planner", "run", "research", "demo"])
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--split", choices=["development", "validation", "evaluation"], default="development")
     parser.add_argument("--refresh", action="store_true", help="Explicitly replace cached provider snapshots")
@@ -20,6 +20,10 @@ def main():
         print(f"Validated {result['common_rows']} common sessions for QQQ, GLD, IEF.")
         for item in result["files"]:
             print(f"{item['symbol']}: {item['first_date']} to {item['last_date']}, {item['rows']} rows")
+    elif args.command == "fetch-planner":
+        from .planner_data import fetch_planner_data
+        result = fetch_planner_data(args.root)
+        print(f"Planner snapshot: {', '.join(result['assets'])}; {result['first_session']} to {result['last_session']}.")
     elif args.command == "research":
         from .research_runner import run_study, publish_study
         destination = args.root/"results"/("execution_v2" if args.source == "yahoo" else "execution_v2_synthetic")

@@ -3,6 +3,6 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent/"src"))
-from roaring_returns.demo import main
+from roaring_returns.app import main
 
 main()

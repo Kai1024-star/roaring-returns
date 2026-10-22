@@ -134,3 +134,41 @@ presentation manifest records the renderer; numerical source and outcome hashes
 are still checked. ETF and synthetic first windows have 108 and 120 monthly
 fills respectively because their available prehistory differs; they are separate
 mechanism studies, not paired market observations.
+
+## v0.3 beginner budget homepage, 2026-10-22
+
+The user requested an English, approachable main page for small budgets while
+retaining the optimization/ML research workspace. Claude first reviewed the
+product scope, then ran read-only implementation/accounting probes. The page
+uses fixed examples, never maps loss tolerance to a recommended portfolio, and
+keeps one-day ML estimates out of multi-year scenario generation.
+
+The first review found that a 2pp haircut to historical total returns combined
+with an unrelated 3% cash assumption disadvantaged the Treasury-fund example.
+It also found that monthly stress understated within-month losses. We added a
+separate SPY/GLD/IEF/BIL snapshot, rebased future returns on historical BIL excess
+log returns, and implemented daily-close historical replay with monthly funding
+and fee-aware net trading. The initial default cash assumption is now the BIL
+snapshot's geometric annualized monthly mean (1.3043% in this snapshot), with
+zero default premium reduction. Changing that rate shifts all future asset log
+returns equally under the explicitly stated constant-premium assumption. It is
+not a current deposit quote or a yield-curve forecast. Historical replay cash
+uses actual observed BIL returns, independently of future cash settings.
+
+The same review led to a savings-reference default, made-up sample-budget labels,
+explicit 7–10 year Treasury-fund interest-rate risk, nominal ending-loss labels,
+and month-end future-dip labels. Technical resampling/interest assumptions are
+available behind an expander; the main flow focuses on dollars, stress and choices.
+Claude's final focused probes confirmed the cash baseline and BIL replay behavior,
+and found no remaining blocking numerical issue. This is AI-assisted engineering
+review, not professional financial advice or human peer review.
+
+59 local tests passed, including clean-checkout synthetic fallback, Streamlit
+navigation/budget submissions, reserve-gap funding, cash-anchor equivalence,
+population log-mean preservation, daily/month-end fee reconciliation, recovered
+intramonth crashes, monthly-only contributions, and future-price contamination.
+The existing checker still verifies all 7 v0.2 numerical modules and both public
+36-case result sets; original trades and research outcomes were not changed.
+Browser checks cover sample-budget selection, an unfunded-reserve case, scenario
+units, dated replay/pause/reset and keyboard navigation. Raw prices, PDFs and
+entered budgets are excluded from the GitHub release.

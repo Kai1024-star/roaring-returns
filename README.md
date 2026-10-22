@@ -4,11 +4,12 @@
 
 A Python personal research project on contribution-aware portfolio rebalancing
 and convex optimization under execution risk.
+It includes an English budget-first educational homepage and an advanced research lab.
 The research question is how allocation drift and required selling change with
 monthly contributions relative to wealth. The focus is portfolio implementation: allocating new cash, measuring drift,
 and quantifying unavoidable sales under explicit assumptions.
 
-## Interactive execution-risk demo (v0.2)
+## Budget planner and research demo (v0.3)
 
 ```bash
 python3 -m venv .venv
@@ -17,6 +18,27 @@ python3 -m venv .venv
 ```
 
 Open **http://127.0.0.1:8501**. The synthetic market works offline without keys.
+Start on **Budget planner**: separate protected cash, enter monthly saving and
+a time horizon, and compare four fixed examples. Explore daily historical stress,
+month-end scenario ranges, a deposit-adjusted dollar dip and animated holdings.
+The loss-comfort input flags outcomes; it does not select an investment for you.
+
+![English budget planner](docs/demo/budget_home.jpg)
+
+For historical homepage inputs, run:
+
+```bash
+.venv/bin/python -m roaring_returns fetch-planner
+```
+
+This creates a separate SPY/GLD/IEF/BIL snapshot (common local coverage:
+2007-05-30–2025-12-31). Cash and inflation remain editable assumptions. Future
+risky scenarios use historical excess log returns over BIL plus the same cash
+anchor used for the savings reference. Daily stress and monthly scenario dips
+are labeled separately. Without this cache the homepage clearly labels its
+synthetic demonstration. [Read the planning contract and limitations](docs/BUDGET_PLANNER.md).
+
+Switch to **Research lab** for the original execution-risk workspace.
 Inspect frozen dollar orders, change next-session prices, and compare realized
 drift, selling and fees. A causal ridge volatility model is compared with EWMA;
 it forecasts execution uncertainty, not alpha. CVXPY/Clarabel solve cost-aware
@@ -138,7 +160,9 @@ Yahoo adjusted-close ratios are used as a total-return proxy with implicit
 reinvestment in the original asset. Dividends are **not** added again as cash.
 Downloaded action fields support auditing, not a claim to have payment dates or
 a complete corporate-action ledger. No whole-share, tax-lot, or tax-savings
-claims are made. Cash earns zero; market impact is omitted. This is a prototype,
+claims are made. Cash earns zero in the original research ledger; the separate
+budget planner uses an explicit user-supplied interest assumption. Market impact
+is omitted. This is a prototype,
 not a certified data feed or a brokerage execution simulator.
 
 The ETF universe is selected retrospectively. The default target is equal

@@ -133,8 +133,9 @@ def _evidence(study):
     st.download_button("Download study summary", study["summary"].to_csv(index=False), "execution_v2_summary.csv", "text/csv")
 
 
-def main():
-    st.set_page_config(page_title="Roaring Returns | Execution Risk Lab", page_icon="◈", layout="wide")
+def main(*, configure_page=True):
+    if configure_page:
+        st.set_page_config(page_title="Roaring Returns | Execution Risk Lab", page_icon="◈", layout="wide")
     st.markdown("""<style>
     .block-container {max-width:1440px;padding-top:3.6rem;padding-bottom:3rem}
     [data-testid="stSidebar"] {border-right:1px solid #e1e5e9}

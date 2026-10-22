@@ -1,0 +1,47 @@
+<div id="journey">
+  <div class="intro"><span class="tag">ONE ILLUSTRATIVE JOURNEY</span><strong id="value"></strong></div>
+  <svg id="plot" viewBox="0 0 760 245" role="img" aria-label="One precomputed scenario path and its cash deposits"><title>One illustrative account path, not a forecast</title></svg>
+  <div class="controls"><button id="play" type="button">Replay journey</button><button id="reset" type="button">Reset</button><label for="time"><span id="unit">Month</span> <span id="month"></span></label><input id="time" type="range" min="0" aria-label="Illustration month"></div>
+  <div id="allocations" aria-label="Illustrative allocation at this step"></div>
+  <p id="explain">A single precomputed path. Playing it does not generate a new prediction.</p>
+</div>
+<style>
+  *{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#172739;background:transparent}
+  #journey{padding:18px 22px;background:#fff;border:1px solid #e2e6e9;border-radius:16px}
+  .intro{display:flex;justify-content:space-between;align-items:center;gap:12px}.tag{font-size:10px;letter-spacing:1.4px;color:#64758a}#value{font-size:23px}
+  #plot{width:100%;height:auto;max-height:245px;display:block;margin:8px 0}
+  .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}button{background:#173d4a;color:white;border:0;border-radius:7px;padding:9px 13px;font:inherit;cursor:pointer}#reset{background:#eef2f4;color:#34485d}
+  button:focus-visible,input:focus-visible{outline:3px solid #b78b32;outline-offset:3px}button:disabled{opacity:.6;cursor:default}input{accent-color:#168a94;min-width:120px;flex:1}label{white-space:nowrap;font-size:12px}
+  #allocations{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:17px}.asset{font-size:11px;color:#68788a}.amount{display:block;color:#172739;font-size:15px;font-weight:600;margin-top:3px}.rail{height:4px;background:#eef1f4;margin-top:6px;border-radius:4px;overflow:hidden}.fill{height:100%;border-radius:4px}
+  p{font-size:11px;color:#68788a;line-height:1.5;margin:14px 0 0}@media(max-width:500px){#journey{padding:13px}.tag{max-width:160px}#allocations{grid-template-columns:repeat(2,1fr)}#value{font-size:20px}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+<script>
+(()=>{
+  const d=__DATA__,root=document.getElementById('journey'),svg=root.querySelector('#plot'),slider=root.querySelector('#time'),button=root.querySelector('#play');
+  const money=x=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(x);
+  const colors=['#9aa8b5','#168a94','#bd963f','#526b94'],names=['Cash','US stocks','Gold','7–10y Treasury fund'];
+  let t=d.values.length-1,playing=false,timer=null;const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const unit=d.unit||'Month',delay=unit==='Session'?45:240;
+  slider.max=t;slider.value=t;slider.setAttribute('aria-label','Illustration '+unit.toLowerCase());root.querySelector('#unit').textContent=unit;
+  const max=Math.max(1,...d.values,...d.deposits)*1.12,x=i=>48+i/(d.values.length-1)*690,y=v=>208-v/max*177;
+  const line=(values,end)=>values.slice(0,end+1).map((v,i)=>(i?'L':'M')+x(i).toFixed(2)+','+y(v).toFixed(2)).join(' ');
+  function draw(){
+    let s='';for(let i=0;i<4;i++){let v=max*i/3;s+='<line x1="48" y1="'+y(v)+'" x2="738" y2="'+y(v)+'" stroke="#edf0f3"/><text x="42" y="'+(y(v)+4)+'" text-anchor="end" fill="#6c7c8e" font-size="10">'+money(v)+'</text>'}
+    s+='<path d="'+line(d.deposits,t)+'" fill="none" stroke="#9daab8" stroke-width="2" stroke-dasharray="5 5"/>';
+    s+='<path d="'+line(d.values,t)+'" fill="none" stroke="#168a94" stroke-width="3" stroke-linejoin="round"/>';
+    s+='<circle cx="'+x(t)+'" cy="'+y(d.values[t])+'" r="4" fill="#168a94"/><text x="48" y="232" font-size="11" fill="#6c7c8e">' + unit + ' 0</text><text x="738" y="232" text-anchor="end" font-size="11" fill="#6c7c8e">' + unit + ' '+(d.values.length-1)+'</text>';
+    svg.innerHTML='<title>Illustrative account value, '+money(d.values[t])+' at '+unit.toLowerCase()+' '+t+'</title>'+s;
+    root.querySelector('#value').textContent=money(d.values[t]);root.querySelector('#month').textContent=t+(d.dates?' · '+d.dates[t]:'');slider.value=t;
+    root.querySelector('#allocations').innerHTML=d.holdings[t].map((v,i)=>'<div><span class="asset">'+names[i]+'</span><span class="amount">'+money(v)+'</span><div class="rail"><div class="fill" style="background:'+colors[i]+';width:'+(d.values[t]>0?100*v/d.values[t]:0)+'%"></div></div></div>').join('');
+    root.querySelector('#explain').textContent=d.note+' Solid: modeled account. Dashed: cash deposited, expressed in the same dollar units.';
+  }
+  function pause(){playing=false;clearTimeout(timer);button.textContent='Replay journey'}
+  function step(){if(!playing)return;if(t>=d.values.length-1){pause();return}t++;draw();timer=setTimeout(step,delay)}
+  button.addEventListener('click',()=>{if(playing){pause();return}if(t>=d.values.length-1)t=0;playing=true;button.textContent='Pause';draw();timer=setTimeout(step,delay)});
+  slider.addEventListener('input',()=>{pause();t=Number(slider.value);draw()});
+  root.querySelector('#reset').addEventListener('click',()=>{pause();t=0;draw()});
+  if(reduced){button.disabled=true;button.textContent='Use the timeline';button.setAttribute('aria-label','Animation disabled for reduced-motion preference')}
+  draw();
+})();
+</script>

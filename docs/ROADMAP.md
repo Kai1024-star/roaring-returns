@@ -20,6 +20,19 @@
   provenance, and verified numerical/public-artifact hashes.
 - Negative ML findings preserved; v0.1 numerical ledger/results remain separate.
 
+## Implemented v0.3
+
+- English budget homepage with protected cash, reserve-gap funding, editable
+  monthly saving, horizon, goal and dollar loss-comfort marker.
+- Four fixed allocation examples, joint monthly block scenarios with a common
+  cash/excess-return anchor, and daily-close historical stress with monthly trades.
+- Replay/pause/reset and keyboard timelines, scenario comparisons, explicit
+  nominal/today-dollar units, and an opt-in local JSON download.
+- Separate SPY/GLD/IEF/BIL snapshot and clearly labeled offline synthetic fallback;
+  advanced ML/optimization stays in the research workspace.
+- [Planning contract and limitations](BUDGET_PLANNER.md); original research
+  numerical-module and public-result hashes remain unchanged.
+
 ## Next research increments
 
 1. Cash-flow reachability calibration: distinguish reset-to-target identities

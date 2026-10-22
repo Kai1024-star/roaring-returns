@@ -27,6 +27,7 @@ class DemoTests(unittest.TestCase):
         from streamlit.testing.v1 import AppTest
         root = Path(__file__).resolve().parents[1]
         app = AppTest.from_file(str(root/"demo_app.py"), default_timeout=30).run()
+        next(r for r in app.radio if r.label == "Workspace").set_value("Research lab").run()
         self.assertFalse(app.exception)
         self.assertEqual(len(app.tabs), 4)
         def order_id():
