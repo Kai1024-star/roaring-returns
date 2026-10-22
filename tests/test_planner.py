@@ -197,15 +197,35 @@ class PlannerUITests(unittest.TestCase):
             app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40).run()
             self.assertFalse(app.exception)
             self.assertTrue(any('SYNTHETIC DEMO' in message.value for message in app.info))
-            self.assertTrue(any('Designed shocks' in message.value for message in app.caption))
+            self.assertTrue(any('designed monthly shocks' in message.value.lower() for message in app.caption))
         home._market.clear()
+
+    def test_optimizer_controls_scenario_modes_and_unfunded_state(self):
+        from streamlit.testing.v1 import AppTest
+        app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40).run()
+        next(r for r in app.radio if r.label == 'Examples and candidates (choose one)').set_value('Risk-balanced candidate')
+        next(s for s in app.slider if s.label == 'Cash share of model candidate (%)').set_value(40)
+        next(s for s in app.selectbox if s.label == 'Covariance lookback (sessions)').set_value(252)
+        next(s for s in app.selectbox if s.label == 'Excess-return assumption').set_value('Zero average excess returns')
+        app.run()
+        self.assertFalse(app.exception)
+        r = app.session_state.planner_bundle[2]['Risk-balanced candidate']
+        self.assertAlmostEqual(r.sample_holdings[0,0]/r.sample_holdings[0].sum(), .4)
+        self.assertEqual(app.session_state.planner_assumption, 'Zero average excess returns')
+        next(n for n in app.number_input if n.label == 'Savings available now ($)').set_value(0.)
+        next(n for n in app.number_input if n.label == 'Monthly amount after bills ($)').set_value(0.)
+        next(n for n in app.number_input if n.label.startswith('Goal for this pot')).set_value(0.)
+        next(b for b in app.button if b.label == 'Compare my scenarios').click().run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any(m.value == 'Not yet funded' for m in app.metric))
+        self.assertTrue(any('No money reaches' in m.value for m in app.info))
 
     def test_default_home_and_presets_and_zero_budget(self):
         from streamlit.testing.v1 import AppTest
         app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40).run()
         self.assertFalse(app.exception)
         self.assertIn('Small budget.', app.title[0].value)
-        self.assertEqual(next(r for r in app.radio if r.label == 'Fixed examples, not recommendations').value, 'Savings reference')
+        self.assertEqual(next(r for r in app.radio if r.label == 'Examples and candidates (choose one)').value, 'Savings reference')
         self.assertTrue(any(m.value == '$2,000' for m in app.metric))
         next(b for b in app.button if b.label == 'Student starter').click().run()
         self.assertFalse(app.exception)

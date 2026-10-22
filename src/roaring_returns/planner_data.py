@@ -104,3 +104,29 @@ def planner_market(root):
                     "assets": list(ASSETS), "first_session": str(prices.index[0].date()),
                     "last_session": str(prices.index[-1].date()),
                     "processed_sha256": __import__("hashlib").sha256(prices.to_csv(float_format="%.12g").encode()).hexdigest()}, True
+
+
+def planner_risky_history(root):
+    """Longer risky-only history for causal covariance, without BIL truncation.
+
+    Reuse and verify the exact raw files already hashed in the planner manifest.
+    This history only estimates covariance; the scenario/replay universe retains
+    the four-asset common calendar used for performance accounting.
+    """
+    root = Path(root)
+    raw = root/'data/raw/planner_v3'
+    manifest = json.loads((raw/'manifest.json').read_text())
+    entries = {entry['symbol']:entry for entry in manifest['files']}
+    frames = {}
+    for symbol in ASSETS[:3]:
+        path = raw/f'{symbol}.yahoo.json'
+        if digest(path) != entries[symbol]['sha256']:
+            raise ValueError('Risk-estimation raw snapshot hash changed.')
+        frames[symbol] = parse_chart(json.loads(path.read_bytes()),symbol).adj_close.loc['2004-12-31':manifest['last_session']]
+    first = max(frame.index[0] for frame in frames.values())
+    frames = {name:frame.loc[first:] for name,frame in frames.items()}
+    reference = frames['SPY'].index
+    if any(not frame.index.equals(reference) for frame in frames.values()):
+        raise ValueError('Risk-estimation calendars disagree.')
+    prices = pd.DataFrame(frames)
+    return prices/prices.iloc[0]*100

@@ -33,6 +33,20 @@
 - [Planning contract and limitations](BUDGET_PLANNER.md); original research
   numerical-module and public-result hashes remain unchanged.
 
+## Implemented v0.4
+
+- Investment P&L, unitized cumulative returns, percentage drawdown and same-period
+  money-weighted returns, with dollar/fee/asset-P&L reconciliation.
+- Joint non-wrapping whole-month blocks valued at daily closes, three explicit
+  premium assumptions, exact sampler-aware zero-premium centering, and a
+  block-length × sample-window sensitivity grid.
+- A convex equal-risk-contribution candidate with verified first-order conditions,
+  a same-cash/equal-risky-capital control, and strictly causal pre-event estimates.
+- Source-aware cache invalidation, cash-flow-date purchasing-power accounting,
+  small-fee precision, switchable animated performance views and keyboard playback.
+- [42-case derived planner audit](../results/planner_v4/README.md), code/table
+  hashes, SciPy optimizer cross-checks and original-research hash preservation.
+
 ## Next research increments
 
 1. Cash-flow reachability calibration: distinguish reset-to-target identities

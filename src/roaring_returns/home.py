@@ -8,7 +8,10 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 from .planner import Budget, PlanningSettings, EXAMPLES, ASSET_NAMES, monthly_returns, sampled_paths, simulate_mix, describe_result, replay_daily
-from .planner_data import planner_market
+from .planner_data import planner_market, planner_risky_history
+from .planning_models import risk_balance, performance_frame, dollar_units
+from .planning_scenarios import SCENARIOS, month_library, sampled_months, simulate_daily_scenarios
+from .planning_views import performance_metrics, attribution, future_charts, scenario_row, show_comparison
 
 ROOT = Path(__file__).resolve().parents[2]
 MIX_COLORS = ["#8d9dad", "#168a94", "#bd963f", "#526b94"]
@@ -29,53 +32,53 @@ def _market(signature):
     return planner_market(ROOT)
 
 
+@st.cache_data(show_spinner=False)
+def _risk_history(signature):
+    return planner_risky_history(ROOT)
+
+
 def _money(value):
-    return f"${value:,.0f}"
+    return f"${value:,.0f}" if value >= 0 else f"−${abs(value):,.0f}"
 
 
-def _animate(result, settings, real, note):
-    scale = ((1+settings.inflation)**(np.arange(result.wealth.shape[1])/12) if real
-             else np.ones(result.wealth.shape[1]))
-    payload = {"values": (result.wealth[0]/scale).round(2).tolist(),
-               "deposits": (result.contributed/scale).round(2).tolist(),
-               "holdings": (result.sample_holdings/scale[:, None]).round(2).tolist(), "note": note,
-               "unit": result.period_unit, "dates": result.dates}
+def _animate(result, reference, settings, real, note):
+    displayed = dollar_units(result,settings.inflation,real)
+    reference_display = dollar_units(reference,settings.inflation,real)
+    payload = {"values": displayed['wealth'][0].round(4).tolist(),
+               "deposits": displayed['deposits'].round(4).tolist(),
+               "holdings": displayed['holdings'].round(4).tolist(),
+               "fees": displayed['fees'][0].round(6).tolist(), "real":real,
+               "drawdowns": [float(v) if ok else None for v, ok in zip(result.drawdown_path[0], result.return_valid[0])],
+               "nav": [float(v) if ok else None for v, ok in zip(result.nav[0], result.return_valid[0])],
+               "referenceValues": reference_display['wealth'][0].round(4).tolist(),
+               "referenceNav": [float(v) if ok else None for v, ok in zip(reference.nav[0], reference.return_valid[0])],
+               "note": note, "unit": result.period_unit, "dates": result.dates}
     template = (Path(__file__).parent/"assets/journey.html").read_text()
-    st.iframe(template.replace("__DATA__", json.dumps(payload).replace("</", "<\\/")), height="content", tab_index=0)
+    st.iframe(template.replace("__DATA__", json.dumps(payload, allow_nan=False).replace("</", "<\\/")), height="content", tab_index=0)
 
 
-def _bundle(prices, meta, budget, settings):
-    # Budget-dependent results stay in this user's in-memory session, not a
-    # persistent/global cache. Market history is public, budget entries are not.
-    key = sha256(json.dumps({"budget": asdict(budget), "settings": asdict(settings),
-                            "data": meta["processed_sha256"]}, sort_keys=True).encode()).hexdigest()
-    if st.session_state.get("planner_bundle_key") != key:
-        history = monthly_returns(prices)
-        draws, indexes = sampled_paths(history.to_numpy(), budget.months, settings)
-        results = {name: simulate_mix(draws, budget, weights, settings) for name, weights in EXAMPLES.items()}
-        st.session_state.planner_bundle = (history, draws, indexes, results)
+def _bundle(prices, meta, budget, settings, mixes, assumption, recent):
+    code_hash = sha256(b''.join((Path(__file__).parent/name).read_bytes() for name in
+        ['planner.py','planning_scenarios.py','planning_models.py'])).hexdigest()
+    key = sha256(json.dumps({"engine":code_hash, "budget":asdict(budget), "settings":asdict(settings),
+        "mixes":{k:list(v) for k,v in mixes.items()}, "assumption":assumption, "recent":recent,
+        "data":meta["processed_sha256"]},sort_keys=True).encode()).hexdigest()
+    if st.session_state.get('planner_bundle_key') != key:
+        library = month_library(prices,recent)
+        indexes = sampled_months(library,budget.months,settings)
+        results = {name:simulate_daily_scenarios(library,budget,a,settings,assumption,indexes) for name,a in mixes.items()}
+        st.session_state.planner_bundle = (library,indexes,results)
         st.session_state.planner_bundle_key = key
     return st.session_state.planner_bundle
 
 
-def _fan(result, budget, settings, real):
-    time = np.arange(budget.months+1)
-    scale = (1+settings.inflation)**(time/12) if real else np.ones(len(time))
-    low, mid, high = np.quantile(result.wealth, [.1, .5, .9], axis=0)/scale
-    frame = pd.DataFrame({"Month": time, "Lower scenario": low, "Middle outcome": mid,
-        "Upper scenario": high, "Deposits": result.contributed/scale})
-    if budget.goal_today > 0:
-        frame["Goal"] = np.full(len(time), budget.goal_today) if real else budget.goal_today*(1+settings.inflation)**(time/12)
-    chart = alt.Chart(frame).encode(x=alt.X("Month:Q", title="Months from now"))
-    band = chart.mark_area(color="#168a94", opacity=.13).encode(
-        y=alt.Y("Lower scenario:Q", title="Today's dollars" if real else "Nominal dollars", scale=alt.Scale(zero=True)),
-        y2="Upper scenario:Q", tooltip=["Month", alt.Tooltip("Lower scenario:Q", format="$,.0f"), alt.Tooltip("Upper scenario:Q", format="$,.0f")])
-    lines = chart.transform_fold(["Middle outcome", "Deposits"]+(["Goal"] if budget.goal_today > 0 else []),
-        as_=["Series", "Value"]).mark_line(strokeWidth=2.5).encode(y="Value:Q",
-        color=alt.Color("Series:N", scale=alt.Scale(domain=["Middle outcome", "Deposits", "Goal"],
-                        range=["#168a94", "#8797a9", "#b78b32"]), legend=alt.Legend(orient="bottom")),
-        strokeDash=alt.StrokeDash("Series:N", legend=None), tooltip=["Month", "Series:N", alt.Tooltip("Value:Q", format="$,.0f")])
-    st.altair_chart((band+lines).properties(height=315), width="stretch")
+def _allocation(weights):
+    frame = pd.DataFrame({'Asset':ASSET_NAMES,'Weight':weights,'Order':range(4)})
+    st.altair_chart(alt.Chart(frame).mark_bar(size=24).encode(x=alt.X('Weight:Q',axis=None),
+        color=alt.Color('Asset:N',scale=alt.Scale(domain=list(ASSET_NAMES),range=MIX_COLORS),legend=None),order='Order:Q',
+        tooltip=['Asset',alt.Tooltip('Weight:Q',format='.1%')]).properties(height=30),width='stretch')
+    legend=''.join(f'<span style="white-space:nowrap"><span style="color:{c}">●</span> {n} <b>{w:.1%}</b></span>' for n,c,w in zip(ASSET_NAMES,MIX_COLORS,weights))
+    st.markdown(f'<div style="display:flex;gap:10px 20px;flex-wrap:wrap;font-size:12px;margin-bottom:12px">{legend}</div>',unsafe_allow_html=True)
 
 
 def render():
@@ -127,12 +130,11 @@ def render():
             with st.expander("Optional goal and model assumptions"):
                 st.number_input("Goal for this pot, in today's dollars ($; 0 = none)", min_value=0., max_value=100000000., step=500., key="budget_goal")
                 st.caption("The goal excludes protected cash. Monthly contributions stay fixed in nominal dollars.")
-                a = st.columns(3)
+                a = st.columns(2)
                 cash_rate = a[0].number_input("Cash interest assumption (%/year)", min_value=-5., max_value=20., value=round(100*sample_cash_rate, 4), step=.5,
                     help="Starts at the snapshot's annualized geometric BIL return. This constant future assumption is not a current bank rate or guaranteed product. Raising it raises all modeled asset log returns equally, under a constant-premium assumption.")/100
                 inflation = a[1].number_input("Inflation assumption (%/year)", min_value=0., max_value=20., value=2.5, step=.5)/100
-                haircut = a[2].number_input("Reduce historical excess returns (log pp/year)", min_value=0., max_value=10., value=0., step=.5,
-                    help="Subtract this annual log-return amount from asset returns above the BIL cash proxy, then add your cash-rate assumption. Zero is the unadjusted sample; a reduction is a sensitivity, not a forecast.")/100
+                haircut = 0.  # Return assumptions are compared explicitly in Possible paths.
                 fees = st.slider("Illustrative cost per purchase/sale (basis points)", 0., 25., 2., 1.)
                 rule = st.selectbox("Monthly rebalancing illustration", ["Cash first, then 5pp band", "Contributions only"])
             st.form_submit_button("Compare my scenarios", type="primary", width="stretch")
@@ -153,105 +155,178 @@ def render():
         st.info("SYNTHETIC DEMO · Artificial market paths, not historical SPY/GLD/IEF data. No historical replay or real-market prediction is shown.")
     else:
         st.caption(f"Historical input: SPY / GLD / IEF + BIL cash proxy · {meta['first_session']}–{meta['last_session']} · cached total-return proxies, not live prices.")
-    with st.spinner("Building the same market scenarios for every example…"):
-        history, draws, indexes, results = _bundle(prices, meta, budget, settings)
-    st.subheader("Choose an example to explore")
-    selected = st.radio("Fixed examples, not recommendations", list(EXAMPLES), index=0, horizontal=True)
-    result = results[selected]
-    weights = EXAMPLES[selected]
-    allocation = pd.DataFrame({"Asset": ASSET_NAMES, "Dollars": result.sample_holdings[0], "Order": np.arange(4)})
-    st.altair_chart(alt.Chart(allocation).mark_bar(size=28).encode(x=alt.X("Dollars:Q", title=None,
-        axis=alt.Axis(labels=False, ticks=False, domain=False, grid=False)),
-        color=alt.Color("Asset:N", sort=list(ASSET_NAMES), scale=alt.Scale(domain=list(ASSET_NAMES), range=MIX_COLORS),
-                        legend=None), order="Order:Q",
-        tooltip=["Asset", alt.Tooltip("Dollars:Q", format="$,.0f")]).properties(height=40), width="stretch")
-    legend = "".join(f'<span style="white-space:nowrap"><span style="color:{color}">●</span> {name} <b>{weight:.0%}</b></span>'
-                     for name, color, weight in zip(ASSET_NAMES, MIX_COLORS, weights))
-    st.markdown(f'<div style="display:flex;gap:12px 22px;flex-wrap:wrap;font-size:12px;margin:0 0 12px">{legend}</div>', unsafe_allow_html=True)
-    st.caption("Example allocations are fixed in advance. SPY is a US large-cap proxy; IEF holds 7–10 year Treasuries and has interest-rate risk. Gold and bond funds can lose value. Cash here is inside this pot; your protected cash stays outside.")
-    tabs = st.tabs(["Stress first", "Possible paths", "Compare choices", "Inside the model"])
+    # Widgets later in the page update these keys before the next script run.
+    model_cash = st.session_state.get('planner_model_cash',20)/100
+    cov_window = st.session_state.get('planner_cov_window',756)
+    block = st.session_state.get('planner_block',6)
+    assumption = st.session_state.get('planner_assumption',SCENARIOS[0])
+    recent = 120 if st.session_state.get('planner_history','Full sample') == 'Last 10 years' else None
+    settings = replace(settings,block_months=block)
+    mixes = dict(EXAMPLES)
+    model = None
+    risk_prices = prices.iloc[:,:3] if synthetic else _risk_history(meta['processed_sha256'])
+    try:
+        model = risk_balance(risk_prices,prices.index[-1],model_cash,cov_window)
+        mixes['Risk-balanced candidate'] = tuple(model.weights)
+        mixes['Same cash / equal risky weights'] = tuple(np.r_[model_cash,np.full(3,(1-model_cash)/3)])
+    except (ValueError,ArithmeticError) as exc:
+        st.error(f'Risk balancing unavailable: {exc}')
+    if st.session_state.get('planner_custom',False):
+        custom = np.array([st.session_state.get('custom_cash',20),st.session_state.get('custom_stocks',40),st.session_state.get('custom_gold',15)],float)/100
+        if custom.sum() <= 1:
+            mixes['Your mix'] = tuple(np.r_[custom,1-custom.sum()])
+        else:
+            st.error('Custom cash + stocks + gold exceed 100%. Reduce a weight in Build & optimize.')
+    with st.spinner('Valuing daily scenarios and checking account performance…'):
+        library,indexes,results = _bundle(prices,meta,budget,settings,mixes,assumption,recent)
+    st.subheader('Choose an example or model candidate')
+    selected = st.radio('Examples and candidates (choose one)',list(mixes),index=0,horizontal=True)
+    result,weights = results[selected],mixes[selected]
+    _allocation(weights)
+    st.caption('Cash is inside this pot; protected money stays outside. SPY is a US large-cap proxy; gold and the 7–10y Treasury fund can lose value. Risk-balanced weights above are fitted using data through '+str(prices.index[-1].date())+'.')
+    tabs = st.tabs(['Stress first','Possible paths','Build & optimize','Compare choices','Inside the model'])
     with tabs[0]:
-        st.subheader("What would a difficult market feel like?")
+        st.subheader('Separate saving money from investment performance')
+        historical_mixes = dict(mixes)
         if not synthetic:
-            episodes = {"2022 · rising rates": ("2022-01-01", "2022-12-31"),
-                        "2020 · sudden sell-off": ("2020-02-01", "2020-04-30"),
-                        "2008–09 · market stress": ("2008-09-01", "2009-03-31")}
-            episode = st.selectbox("Replay a historical pattern", list(episodes))
-            start, end = episodes[episode]
-            stress_results = {name: replay_daily(prices, budget, a, settings, start, end) for name, a in EXAMPLES.items()}
-            dates = stress_results[selected].dates
-            st.caption(f"Daily-close replay: {dates[0]} to {dates[-1]}. Holdings are marked each session; contributions and net trades occur at month-end. Stock/gold/bond returns and the BIL cash proxy use observed history. Only fees and your budget are hypothetical. Daily closes still miss intraday lows.")
+            episodes = {'2022 · rising rates':('2022-01-01','2022-12-31'),
+                        '2020 · sudden sell-off':('2020-02-01','2020-04-30'),
+                        '2008–09 · market stress':('2008-09-01','2009-03-31')}
+            episode=st.selectbox('Replay a historical pattern',list(episodes))
+            start,end=episodes[episode]
+            if model is not None:
+                # Estimate this candidate strictly before the event. It is held
+                # as a fixed target during the replay, with monthly rebalancing.
+                pre_date=prices.index[prices.index < pd.Timestamp(start)][-1]
+                event_model=risk_balance(risk_prices,pre_date,model_cash,cov_window)
+                historical_mixes['Risk-balanced candidate']=tuple(event_model.weights)
+            stress_results={n:replay_daily(prices,budget,a,settings,start,end) for n,a in historical_mixes.items()}
+            active=stress_results[selected]
+            st.caption(f'Daily-close historical replay: {active.dates[0]} to {active.dates[-1]}. Budget and trades are hypothetical; asset and BIL cash-proxy returns are observed. Intraday lows are omitted.')
+            if selected == 'Risk-balanced candidate':
+                st.caption(f'Pre-event covariance only: {event_model.first_date}–{event_model.last_date}, {event_model.observations} returns. No post-event prices determine these weights. The target stays fixed during the event.')
+                _allocation(historical_mixes[selected])
         else:
-            episode = "Designed three-month downturn"
-            stress = np.array([[[-.20, -.04, -.08], [-.10, -.02, -.04], [.05, .02, .01]]])[:, :budget.months]
-            st.caption("Designed shocks for teaching. This sequence did not occur in a real market dataset.")
-            stress_results = {name: simulate_mix(stress, budget, a, settings) for name, a in EXAMPLES.items()}
-        active = stress_results[selected]
-        cols = st.columns(3)
-        cols[0].metric("Replay ending value", _money(active.wealth[0, -1]))
-        cols[1].metric("Deposited into this pot", _money(active.contributed[-1]))
-        cols[2].metric("Largest daily-close dip" if not synthetic else "Largest month-end dip", _money(active.maximum_dip[0]))
+            episode='Designed downturn'
+            stress=np.array([[[-.20,-.04,-.08],[-.10,-.02,-.04],[.05,.02,.01]]])[:,:budget.months]
+            stress_results={n:simulate_mix(stress,budget,a,settings) for n,a in historical_mixes.items()}
+            active=stress_results[selected]
+            st.caption('Synthetic demonstration: designed monthly shocks, not historical observations or daily risk estimates.')
+        reference=stress_results['Savings reference']
+        performance_metrics(active,reference)
+        _animate(active,reference,settings,False,episode+' · '+selected+'.')
         if active.maximum_dip[0] > budget.comfortable_dip+1e-7:
-            st.warning(f"This replay crosses your {_money(budget.comfortable_dip)} comfort line. That line is a personal comparison marker, not a loss cap.")
+            st.warning(f'The account fell by {_money(active.maximum_dip[0])} from its deposit-adjusted high-water mark, above your {_money(budget.comfortable_dip)} comparison line.'.replace('$',r'\$'))
         else:
-            st.caption("This replay stays within your comfort marker. More severe losses remain possible.")
-        _animate(active, settings, False, f"{episode}: historical replay." if not synthetic else "Designed stress illustration.")
-        comparison = pd.DataFrame([{"Example": name, ("Daily-close dip ($)" if not synthetic else "Month-end dip ($)"): r.maximum_dip[0], "Ending value ($)": r.wealth[0, -1]} for name, r in stress_results.items()])
-        st.dataframe(comparison, hide_index=True, width="stretch", column_config={
-            name: st.column_config.NumberColumn(format="$%.0f") for name in comparison if name != "Example"})
-        st.caption("Dip is a dollar fall from a high-water mark adjusted for deposits, not a percentage drawdown. Adding money cannot hide an existing loss. Stress values are nominal dollars; monthly saving enters only at month-end.")
+            st.caption(f'Largest deposit-adjusted dollar dip: {_money(active.maximum_dip[0])}. That amount depends on when money was invested; the percentage return drawdown above provides a second view.'.replace('$',r'\$'))
+        replay_rows=[]
+        for name,r in stress_results.items():
+            valid=bool(r.return_valid[0,-1])
+            replay_rows.append({'Example':name,'Deposits ($)':r.contributed[-1],'Net P&L ($)':r.wealth[0,-1]-r.contributed[-1],
+                'Cumulative return':r.nav[0,-1]-1 if valid else None,'Return drawdown':r.max_drawdown[0] if valid else None,
+                'Dollar dip ($)':r.maximum_dip[0],'Fees ($)':r.fees[0]})
+        st.dataframe(pd.DataFrame(replay_rows),hide_index=True,width='stretch',column_config={
+            **{n:st.column_config.NumberColumn(format='$%.2f') for n in ['Deposits ($)','Net P&L ($)','Dollar dip ($)','Fees ($)']},
+            **{n:st.column_config.NumberColumn(format='percent') for n in ['Cumulative return','Return drawdown']}})
+        with st.expander('Explain every dollar in this replay'):
+            attribution(active)
+        if not synthetic:
+            with st.expander('Underlying market returns · advanced benchmark'):
+                event=prices.loc[active.dates[0]:active.dates[-1]]
+                market=(event/event.iloc[0]-1).rename(columns={'BIL':'Cash proxy'})
+                frame=market.reset_index().melt(id_vars=market.index.name or 'index',var_name='Asset',value_name='Return')
+                date_col=frame.columns[0]
+                st.altair_chart(alt.Chart(frame).mark_line().encode(x=alt.X(date_col+':T',title='Date'),y=alt.Y('Return:Q',axis=alt.Axis(format='%')),color='Asset:N').properties(height=220),width='stretch')
+                st.caption('These are unlevered asset total-return proxies, with no account deposits. The stock series is context rather than an objective to beat.')
     with tabs[1]:
-        st.subheader("A range of possibilities, not a forecast")
-        real = st.toggle("Show today's purchasing power", value=True)
-        stats = describe_result(result, budget, settings)
-        c = st.columns(3)
-        c[0].metric("Lower ending scenario · 10th", _money(stats['ending_low_today']))
-        c[1].metric("Middle ending scenario", _money(stats['ending_middle_today']))
-        c[2].metric("Upper ending scenario · 90th", _money(stats['ending_high_today']))
-        st.caption("Ending cards use today's dollars. The chart switch changes chart units only. The lower scenario is not the worst possible outcome.")
-        _fan(result, budget, settings, real)
-        st.caption(f"Range across {settings.paths:,} illustrative monthly scenarios, not a forecast or guaranteed range. The middle line is not one possible journey. Dips here are measured at month-ends; daily stress replay can reveal deeper falls within a month.")
-        with st.expander("Assumptions behind these paths"):
-            source_word = "synthetic input" if synthetic else "observed historical"
-            st.write(f"{len(history)} {source_word} months, resampled jointly in circular 6-month blocks. Shading is the 10th–90th percentile at each month, not a coverage guarantee. Returns use your cash-rate assumption + sampled excess log returns over BIL − {100*settings.return_haircut:g} log pp/year.")
-            st.write(f"Cash assumption: {100*settings.cash_rate:.2f}%/year; sample BIL geometric baseline: {100*sample_cash_rate:.2f}%. Raising the cash assumption raises every modeled asset's log return equally (constant-premium assumption). This does not model a change in the yield curve. Gold/equity performance is sample-specific; historical gold performance is not a representative expected premium.")
-            st.write("At a 6-month horizon each path is one block. Repeated draws do not create new independent history, and circular blocks can join the sample's end to its beginning. Unseen crises and structural changes are not represented.")
-        with st.expander("Replay one illustrative journey"):
-            _animate(result, settings, real, "First scenario from a fixed seed, not a selected winner or the median path.")
-        extra = st.slider("What if I could set aside extra each month? ($)", 0, 500, 0, 25,
-                          help="A hypothetical comparison, not a recommendation to spend more than your budget allows.")
+        st.subheader('How much does the answer depend on the model?')
+        c=st.columns(3)
+        c[0].selectbox('Excess-return assumption',list(SCENARIOS),key='planner_assumption')
+        c[1].selectbox('Contiguous block length (months)',[3,6,12],index=1,key='planner_block')
+        c[2].selectbox('Resampling input window',['Full sample','Last 10 years'],key='planner_history')
+        real=st.toggle("Show today's purchasing power",value=True)
+        stats=describe_result(result,budget,settings)
+        c=st.columns(3)
+        c[0].metric('Middle ending · today’s dollars',_money(stats['ending_middle_today']))
+        c[1].metric('Median net P&L · nominal dollars',_money(stats['median_net_pnl']))
+        c[2].metric('90th-percentile return drawdown',f"{stats['drawdown_90']:.1%}" if stats['drawdown_90'] is not None else 'Not yet funded')
+        future_charts(result,budget,settings,real)
+        if budget.goal_today > 0:
+            reached=int(np.sum(result.wealth[:,-1]/(1+settings.inflation)**(budget.months/12)>=budget.goal_today))
+            st.caption(f'Your goal for this pot: {_money(budget.goal_today)} in today’s dollars. {reached}/{settings.paths} conditional scenarios ended at or above it. This is a model count, not a real-world success probability.'.replace('$',r'\$'))
+        st.caption(f'{settings.paths} paths from {len(library.counts)} months ({library.labels[0]}–{library.labels[-1]}). Whole-month blocks preserve observed daily order within each month; blocks do not wrap across the end of the sample. Cash assumption: {settings.cash_rate:.2%}/year; inflation assumption: {settings.inflation:.2%}/year.')
+        st.markdown('**Three return assumptions, same sampled months**')
+        scenarios=[]
+        for mode in SCENARIOS:
+            candidate=result if mode==assumption else simulate_daily_scenarios(library,budget,weights,settings,mode,indexes)
+            scenarios.append(scenario_row(mode,candidate,budget,settings))
+        show_comparison(scenarios)
+        st.caption('Lower excess returns subtracts 2 log percentage points/year. Zero average excess returns removes the expected excess log return at each block position, correcting for the unequal sampling of boundary months. Finite sampled paths need not average exactly zero. These are alternative assumptions, not calibrated likelihoods. Fees can make the zero-premium case lose money.')
+        with st.expander('Block length and sample-window sensitivity',expanded=True):
+            check_rows=[]
+            for window,limit in [('Full sample',None),('Last 10 years',120)]:
+                check_library=month_library(prices,limit)
+                for length in [3,6,12]:
+                    cfg=replace(settings,block_months=length)
+                    checked=simulate_daily_scenarios(check_library,budget,weights,cfg,assumption)
+                    row=scenario_row(f'{window} / {length}m blocks',checked,budget,cfg)
+                    row['Input months']=len(check_library.counts)
+                    check_rows.append(row)
+            show_comparison(check_rows)
+            st.caption('The allocation is held fixed in this check. Different block lengths/sample windows probe model dependence; they do not create a new holdout or determine which setting is true.')
+        with st.expander('Inspect one fixed-seed daily path'):
+            _animate(result.sample_path,results['Savings reference'].sample_path,settings,real,'First sampled path; not the median or a selected winner. Dollar views follow the purchasing-power switch; return percentages are nominal.')
+        extra=st.slider('What if I could set aside extra each month? ($)',0,500,0,25)
         if extra:
-            alternative = simulate_mix(draws, budget, weights, settings, extra_monthly=extra)
-            delta = describe_result(alternative, budget, settings)['ending_middle_today']-stats['ending_middle_today']
-            st.write(f"With an extra {_money(extra)}/month available after bills, the middle ending scenario changes by {_money(delta)} in today's dollars, using the same market paths. Any reserve gap is filled first.")
+            from dataclasses import replace as dc_replace
+            # Keep reserve-gap funding exact when the total monthly budget changes.
+            changed=dc_replace(budget,monthly=budget.monthly+extra)
+            alternative=simulate_daily_scenarios(library,changed,weights,settings,assumption,indexes)
+            delta=describe_result(alternative,changed,settings)['ending_middle_today']-stats['ending_middle_today']
+            st.write(f'Extra {_money(extra)}/month changes the middle ending scenario by {_money(delta)} in today’s dollars, on the same paths. This includes the additional deposits; it is not extra investment return.'.replace('$',r'\$'))
     with tabs[2]:
-        st.subheader("Compare trade-offs without a winner badge")
-        rows = []
-        for name, r in results.items():
-            row = {"Example": name, **describe_result(r, budget, settings)}
-            rows.append(row)
-        table = pd.DataFrame(rows).rename(columns={"ending_low_today": "Lower ending ($ today)",
-            "ending_middle_today": "Middle ending ($ today)", "ending_high_today": "Upper ending ($ today)",
-            "ending_below_deposits_frequency": "Ends below deposits (nominal)", "dip_exceeds_comfort_frequency": "Month-end dip crosses your line",
-            "dip_90_nominal": "90th-percentile month-end dip ($ nominal)", "median_fees": "Median fees ($ nominal)",
-            "median_selling_months": "Median selling months", "total_deposits_nominal": "Deposits ($ nominal)", "goal_frequency": "Reaches your goal"})
-        st.dataframe(table, hide_index=True, width="stretch", column_config={
-            **{name: st.column_config.NumberColumn(format="$%.0f") for name in table if "($" in name},
-            **{name: st.column_config.NumberColumn(format="percent") for name in ["Ends below deposits (nominal)", "Month-end dip crosses your line", "Reaches your goal"] if name in table}})
-        st.caption("Frequencies count outcomes inside this resampling model, not real-world probabilities. All examples use identical paths, contributions, fees and cash/inflation assumptions. Goals are in today's dollars; the dip marker is in nominal dollars. Protected cash is excluded.")
-        st.markdown("**Savings reference** is an assumed constant cash rate, not an insured product or a market quote. **More cash**, **Mixed example** and **More stocks** are teaching examples; none is selected for you.")
+        st.subheader('Solve a risk-balanced allocation')
+        st.write('Choose the cash share yourself. The solver divides the remaining stock/gold/bond portion so each contributes one third of its estimated variance. It balances a risk estimate; it does not maximize expected wealth or establish suitability.')
+        c=st.columns(2)
+        c[0].slider('Cash share of model candidate (%)',0,100,20,5,key='planner_model_cash')
+        c[1].selectbox('Covariance lookback (sessions)',[252,756,1260],index=1,key='planner_cov_window',format_func=lambda x:f'{x} sessions · about {x//252} {"year" if x==252 else "years"}')
+        if model is not None:
+            frame=pd.DataFrame({'Risky asset':ASSET_NAMES[1:],'Capital share within risky slice':model.risky_weights,'Share of estimated variance':model.risk_contributions})
+            st.dataframe(frame,hide_index=True,width='stretch',column_config={n:st.column_config.NumberColumn(format='percent') for n in frame if n!='Risky asset'})
+            equal=np.ones(3)/3
+            eq_vol=(1-model_cash)*np.sqrt(equal@model.covariance@equal)
+            st.caption(f'Future scenario candidate estimated using {model.observations} pre-decision daily returns: {model.first_date}–{model.last_date}. Covariance is 25% shrunk toward its diagonal. Estimated annual volatility: candidate {model.annual_volatility:.1%}; equal-capital risky slice at the same cash share {eq_vol:.1%}. Neither estimate is a future loss limit.')
+            frontier=pd.DataFrame({'Cash share':np.linspace(0,1,21)})
+            risky_vol=np.sqrt(model.risky_weights@model.covariance@model.risky_weights)
+            frontier['Estimated annual volatility']=(1-frontier['Cash share'])*risky_vol
+            st.altair_chart(alt.Chart(frontier).mark_line(point=True,color='#168a94').encode(x=alt.X('Cash share:Q',axis=alt.Axis(format='%')),y=alt.Y('Estimated annual volatility:Q',axis=alt.Axis(format='%')),tooltip=[alt.Tooltip('Cash share:Q',format='.0%'),alt.Tooltip('Estimated annual volatility:Q',format='.1%')]).properties(height=210),width='stretch')
+            st.caption('This trade-off varies only cash exposure around a fixed risky mix. Cash is treated as constant for this volatility estimate; the historical cash proxy can fluctuate. No return forecast is optimized. Same cash / equal risky weights is included as the control for how the risky slice is constructed. The covariance-fitting period overlaps the historical resampling input: future scenarios are exploratory, not held-out evidence.')
+            with st.expander('Solver and mathematical audit'):
+                st.latex(r'\min_{x>0}\;\frac12x^T\Sigma x-\frac13\sum_{i=1}^3\log x_i,\quad w_{risk}=x/(1^Tx)')
+                st.json({'solver':model.solver,'maximum_first_order_error':model.kkt_error,'minimum_covariance_eigenvalue':float(np.linalg.eigvalsh(model.covariance).min()),'estimated_risk_shares':model.risk_contributions.tolist()})
+        st.checkbox('Include my own allocation',key='planner_custom')
+        c=st.columns(3)
+        c[0].slider('My cash (%)',0,100,20,5,key='custom_cash')
+        c[1].slider('My stocks (%)',0,100,40,5,key='custom_stocks')
+        c[2].slider('My gold (%)',0,100,15,5,key='custom_gold')
+        remaining=100-sum(st.session_state[k] for k in ['custom_cash','custom_stocks','custom_gold'])
+        if remaining>=0:
+            st.caption(f'Remaining {remaining}% goes to the 7–10y Treasury fund. Enable the checkbox to add Your mix to the comparison selector.')
+        else:
+            st.error('Custom shares exceed 100%; this allocation is not included.')
     with tabs[3]:
-        st.subheader("Understand what the model can — and cannot — show")
-        st.markdown("**Budget:** protected cash stays outside the investment pot; a shortfall is funded before investing. Monthly contributions remain fixed in nominal dollars.\n\n**Scenarios:** stock, gold, bond and BIL cash-proxy returns are sampled jointly in circular six-month blocks. Risky log returns are rebased as your cash assumption + historical excess over BIL − the optional premium reduction. This aligns interest-rate assumptions across cash and bonds. It preserves some sample relationships, but cannot create unseen crises or prove future coverage. BIL is a short-term Treasury ETF proxy, not an insured deposit; it is not an investable cash product offered here.\n\n**Rebalancing:** new money is allocated in proportion to positive dollar shortfalls (a different rule from the research lab's L2 projection), then resets to the example mix if a monthly weight is more than 5 percentage points away. This controls allocation drift; it does not cap investment losses.\n\n**Timing:** future scenarios are marked monthly. Historical stress is marked at daily closes, with holdings unchanged between month-end net trades and cash following observed BIL returns. Both add contributions at month-end and use your fee assumption. Monthly future paths use your constant cash-rate assumption. Neither inherits the research lab's next-session execution model.")
-        st.markdown("**Where ML fits:** the research lab compares next-session ridge volatility with EWMA. It does not predict which asset will rise, and its one-day estimates are not used to manufacture these multi-year scenarios. The earlier ETF study retained a negative ML result.")
-        with st.expander("View the budget and model audit"):
-            st.json({"budget": asdict(budget), "model_assumptions": asdict(settings), "example_weights_cash_stocks_gold_bonds": EXAMPLES[selected], "market_snapshot": meta})
-        report = {"purpose": "Educational scenario comparison, not an investment recommendation or forecast",
-            "budget": asdict(budget), "settings": asdict(settings), "data": meta, "selected_example": selected,
-            "allocation": dict(zip(ASSET_NAMES, weights)), "model_summary": describe_result(result, budget, settings),
-            "limitations": ["protected cash excluded", "no taxes or share granularity", "cash/inflation are assumptions",
-                "historical resampling is not prospective evidence", "no capital or coverage guarantee"]}
-        st.download_button("Download my local scenario summary", json.dumps(report, indent=2), "roaring_returns_scenarios.json", "application/json")
-        st.markdown("Background: [SEC — asset allocation and diversification](https://www.investor.gov/introduction-investing/getting-started/asset-allocation), [SEC — time horizon and risk](https://www.investor.gov/introduction-investing/investing-basics/save-and-invest/gauge-your-risk-tolerance), [FINRA — investing on a budget](https://syndication.finra.org/content/how-invest-budget).")
+        st.subheader('Identical cash flows and scenarios for every candidate')
+        show_comparison([scenario_row(n,r,budget,settings) for n,r in results.items()])
+        st.caption(f'Cumulative returns cover the full {budget.months}-month horizon. Investment P&L excludes deposits and includes trading fees. Percentage returns exclude external cash flows. Dollar dip and return drawdown answer different questions. Frequencies are conditional model counts; no method is ranked as a winner.')
+    with tabs[4]:
+        st.subheader('What changed, and what is still uncertain')
+        st.markdown('**Account accounting:** initial and monthly purchase costs are included. Deposits issue units at the pre-flow NAV; this separates saving from investment performance. Protected money stays outside this pot.\n\n**Simulation:** each chosen whole month is valued at all observed daily closes; contributions and net trades occur at its end. Joint contiguous blocks preserve asset co-movement and some serial dependence. Sample-window, block-length and return-premium assumptions are shown side by side. More simulated paths do not create more independent history.\n\n**Risk model:** 25% diagonal-shrinkage covariance and a convex equal-risk-contribution solve. Future weights use the latest completed cached session; historical stress weights use only pre-event data. The event target then stays fixed. Risk estimates can fail, especially when correlations change.\n\n**Boundaries:** no whole shares, tax lots, intraday liquidity or broker fills. Default return assumptions are historical scenarios, not estimates of a user’s achievable return. ML remains in Research lab, where its negative result against EWMA is retained.')
+        with st.expander('View the budget, assumptions and data audit'):
+            st.json({'budget':asdict(budget),'settings':asdict(settings),'assumption':assumption,'sample_window':recent,'example_weights':mixes[selected],'data':meta})
+        report={'purpose':'Educational conditional scenarios and risk budgeting; no forecast or suitability recommendation',
+            'budget':asdict(budget),'settings':asdict(settings),'assumption':assumption,'selected_example':selected,
+            'allocation':dict(zip(ASSET_NAMES,weights)),'model_summary':describe_result(result,budget,settings),'data':meta}
+        st.download_button('Download my local scenario summary',json.dumps(report,indent=2,allow_nan=False),'roaring_returns_scenarios.json','application/json')
+        st.markdown('Methods: [CVX risk-budget allocation](https://www.cvxgrp.org/cvx_short_course/docs/exercises/notebooks/13.20.html). Background: [SEC asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation).')
     st.divider()
-    st.caption("A learning and comparison tool. No investment or tax recommendation, guaranteed return, loss cap or brokerage execution. SPY/GLD/IEF are research proxies. Raw market data and your budget entries are not published to GitHub.")
+    st.caption('Educational research prototype · USD · No brokerage connection · Scenario outcomes and estimated risk are not guarantees. Budget entries are held in the local app session and excluded from GitHub.')

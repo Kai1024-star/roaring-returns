@@ -1,0 +1,42 @@
+{
+  "purpose": "Derived demonstration checks; fabricated student profile, not user financial data",
+  "budget": {
+    "savings": 3000,
+    "emergency_reserve": 1500,
+    "near_term": 500,
+    "monthly": 100,
+    "months": 60,
+    "goal_today": 0,
+    "comfortable_dip": 300
+  },
+  "settings": {
+    "paths": 800,
+    "block_months": 6,
+    "seed": 20261022,
+    "cash_rate": 0.013043238103970583,
+    "inflation": 0.025,
+    "return_haircut": 0.0,
+    "cost_bps": 2.0,
+    "band": 0.05,
+    "rebalancing": "cash_first_band"
+  },
+  "data_sha256": "9ca130eb52d7b94510905685509a5a49807dcb841d34cb8cf70e6b6daf79f1f7",
+  "numerical_module_hashes": {
+    "planner.py": "5d440bb41c20ddb68550f9129af67edfc1c57a7f8b021f51cd7133e8cd12db58",
+    "planner_data.py": "59e794f3d67df325374be589005bdb9373f1b112f14fed8b09d872b83ff1f005",
+    "planning_models.py": "d8e4700038ca3c66797d77d738bc628b444a8d143ea1425488b1867637d5ae5c",
+    "planning_scenarios.py": "ba3af093922b038c3b527b6a75ff39b77f2add6f368380b19a3860773bc17007"
+  },
+  "artifact_hashes": {
+    "causal_model_fits.json": "66648afd8958ca03a94ca53182c9e40c8b3f1cb9f236002fcfecb1726be4a556",
+    "historical_replays.csv": "2cc2e4c9cee9d2bed7bd4540e9696c7db7e6bd6a17223c1ac74172a5427e6df3",
+    "scenario_comparison.csv": "23185f99f14a21c3331800351ca529a0cb4a2fe31fa333814b357df0c9ea89dd",
+    "sensitivity.csv": "028c9840a9b30d0b3b896dbd9e4063d9109ebfd46ac3141bf0ed12f479f57875"
+  },
+  "limitations": [
+    "historical source already inspected",
+    "covariance fit overlaps future resampling input",
+    "conditional scenarios, not forecast probabilities",
+    "no taxes or whole-share execution"
+  ]
+}

@@ -9,7 +9,7 @@ The research question is how allocation drift and required selling change with
 monthly contributions relative to wealth. The focus is portfolio implementation: allocating new cash, measuring drift,
 and quantifying unavoidable sales under explicit assumptions.
 
-## Budget planner and research demo (v0.3)
+## Budget planner and research demo (v0.4)
 
 ```bash
 python3 -m venv .venv
@@ -19,11 +19,25 @@ python3 -m venv .venv
 
 Open **http://127.0.0.1:8501**. The synthetic market works offline without keys.
 Start on **Budget planner**: separate protected cash, enter monthly saving and
-a time horizon, and compare four fixed examples. Explore daily historical stress,
-month-end scenario ranges, a deposit-adjusted dollar dip and animated holdings.
-The loss-comfort input flags outcomes; it does not select an investment for you.
+a time horizon, then compare fixed examples, a custom mix and a solved risk-balanced
+candidate. The main chart separates **investment P&L**, **returns excluding deposits**,
+and **account balance**, with a daily return-drawdown panel and cash benchmark.
+A rising balance from deposits is no longer presented as investment performance.
 
-![English budget planner](docs/demo/budget_home.jpg)
+![Investment performance and drawdown](docs/demo/budget_v4_performance.jpg)
+
+The model uses joint whole-month blocks with daily valuation, three explicit
+excess-return assumptions and a 3/6/12-month × two-window sensitivity grid.
+The risk-balanced candidate solves a convex equal-variance-contribution problem;
+it has a same-cash/equal-risky-weight control, verified first-order conditions,
+and strictly pre-event covariance estimates for historical stress. It does not
+optimize an expected-return forecast or select a suitable investment for a user.
+
+- [v0.4 model, accounting and limitations](docs/BUDGET_PLANNER.md)
+- [42 derived demonstration checks and source hashes](results/planner_v4/README.md)
+- [Risk-balancing demo preview](docs/demo/budget_v4_optimizer.jpg)
+- [Scenario and sensitivity demo preview](docs/demo/budget_v4_scenarios.jpg)
+- Offline artifact check: `python scripts/check_planner_audit.py`
 
 For historical homepage inputs, run:
 
@@ -34,8 +48,8 @@ For historical homepage inputs, run:
 This creates a separate SPY/GLD/IEF/BIL snapshot (common local coverage:
 2007-05-30–2025-12-31). Cash and inflation remain editable assumptions. Future
 risky scenarios use historical excess log returns over BIL plus the same cash
-anchor used for the savings reference. Daily stress and monthly scenario dips
-are labeled separately. Without this cache the homepage clearly labels its
+anchor used for the savings reference. Historical replay and sampled scenarios
+are valued daily, with contributions and trading at month ends. Without this cache the homepage clearly labels its
 synthetic demonstration. [Read the planning contract and limitations](docs/BUDGET_PLANNER.md).
 
 Switch to **Research lab** for the original execution-risk workspace.

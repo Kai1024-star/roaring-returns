@@ -91,6 +91,16 @@ class PlanningResult:
     sample_holdings: np.ndarray
     period_unit: str = "Month"
     dates: list[str] | None = None
+    nav: np.ndarray | None = None
+    return_valid: np.ndarray | None = None
+    max_drawdown: np.ndarray | None = None
+    fee_path: np.ndarray | None = None
+    sample_asset_pnl: np.ndarray | None = None
+    sample_path: "PlanningResult | None" = None
+    risk_observation: str = "Month-end"
+    elapsed_months: np.ndarray | None = None
+    drawdown_path: np.ndarray | None = None
+
 
 
 def monthly_returns(prices):
@@ -163,6 +173,23 @@ def _settle_month(h, flow, a, settings):
     return next_h, fees, sales
 
 
+def flow_neutral_step(previous, marked, end, flow, nav, peak, valid):
+    """Issue units at pre-flow NAV, then charge fees pro rata to all units.
+
+    A previously empty pot starts at NAV 1 when first funded. Empty periods do
+    not create a measured investment return. Initial purchase fees are included.
+    """
+    previous, marked, end = np.asarray(previous), np.asarray(marked), np.asarray(end)
+    funded = (previous > 1e-12) | (np.asarray(flow) > 1e-12)
+    market_factor = np.divide(marked, previous, out=np.ones_like(end), where=previous > 1e-12)
+    pre_nav = nav*market_factor
+    fee_factor = np.divide(end, marked+flow, out=np.ones_like(end), where=marked+flow > 1e-12)
+    next_nav = pre_nav*fee_factor
+    next_peak = np.where(funded, np.maximum(peak, pre_nav), peak)
+    drawdown = np.where(funded, np.maximum(0, 1-next_nav/np.maximum(next_peak, 1e-15)), 0)
+    return next_nav, next_peak, valid | funded, drawdown
+
+
 def simulate_mix(draws, budget, weights, settings, *, extra_monthly=0.):
     """Mark holdings, add cash, then implement a monthly cash-first band rule.
 
@@ -187,10 +214,17 @@ def simulate_mix(draws, budget, weights, settings, *, extra_monthly=0.):
     max_dip = np.full(count, budget.initial-initial_wealth)
     sample = np.zeros((months+1, 4)); sample[0] = h[0]
     flows = budget.contributions(extra_monthly)[:months]
+    nav = np.ones((count, months+1)); nav[:, 0] = initial_wealth/budget.initial if budget.initial else 1.
+    valid = np.zeros((count, months+1), bool); valid[:, 0] = budget.initial > 0
+    peak = np.ones(count); max_dd = np.full(count, 1-nav[0, 0] if budget.initial else 0.)
+    fee_path = np.zeros((count, months+1)); fee_path[:, 0] = fees
+    dd_path = np.zeros_like(wealth); dd_path[:, 0] = max_dd
+    asset_pnl = np.zeros((months+1, 4))
     cash_factor = (1+settings.cash_rate)**(1/12)
     for month, flow in enumerate(flows):
-        h[:, 0] *= cash_factor
-        h[:, 1:] *= 1+r[:, month]
+        gain = h*np.column_stack([np.full(count, cash_factor-1), r[:, month]])
+        asset_pnl[month+1] = asset_pnl[month]+gain[0]
+        h += gain
         marked_wealth = h.sum(1)
         h, month_fees, month_sales = _settle_month(h, flow, a, settings)
         end = h.sum(1)
@@ -198,10 +232,17 @@ def simulate_mix(draws, budget, weights, settings, *, extra_monthly=0.):
         selling += month_sales > 1e-6*np.maximum(marked_wealth, 1)
         high_water = np.maximum(high_water+flow, end)
         max_dip = np.maximum(max_dip, high_water-end)
+        nav[:, month+1], peak, valid[:, month+1], dd = flow_neutral_step(
+            wealth[:, month], marked_wealth, end, flow, nav[:, month], peak, valid[:, month])
+        max_dd = np.maximum(max_dd, dd)
+        dd_path[:, month+1] = dd
+        fee_path[:, month+1] = fees
         wealth[:, month+1] = end
         sample[month+1] = h[0]
     contributed = budget.initial+np.r_[0., np.cumsum(flows)]
-    return PlanningResult(wealth, fees, sales, selling, max_dip, contributed, sample)
+    return PlanningResult(wealth, fees, sales, selling, max_dip, contributed, sample,
+                          nav=nav, return_valid=valid, max_drawdown=max_dd,
+                          fee_path=fee_path, sample_asset_pnl=asset_pnl, drawdown_path=dd_path)
 
 
 def replay_daily(prices, budget, weights, settings, start, end):
@@ -237,11 +278,17 @@ def replay_daily(prices, budget, weights, settings, start, end):
     fees, sales, selling = np.array([budget.initial-initial]), np.zeros(1), np.zeros(1, dtype=int)
     high_water, max_dip = budget.initial, budget.initial-initial
     flows, flow_index = budget.contributions(), 0
+    nav = [initial/budget.initial if budget.initial else 1.]
+    valid = [budget.initial > 0]; peak = np.ones(1)
+    max_dd = 1-nav[0] if budget.initial else 0.
+    fee_path = [fees[0]]; asset_pnl = [np.zeros(4)]; dd_path = [max_dd]
     for i in range(1, len(days)):
         elapsed = (days[i]-days[i-1]).days
         factors = (levels.iloc[i]/levels.iloc[i-1]).to_numpy()
-        h[:, 0] *= factors[3] if len(factors) == 4 else (1+settings.cash_rate)**(elapsed/365.25)
-        h[:, 1:] *= factors[:3]
+        cash_factor = factors[3] if len(factors) == 4 else (1+settings.cash_rate)**(elapsed/365.25)
+        gain = h*(np.r_[cash_factor, factors[:3]]-1)
+        asset_pnl.append(asset_pnl[-1]+gain[0])
+        h += gain
         marked = h.sum(1)[0]
         # Include the pre-trade close too: depositing or trading cannot conceal
         # a loss that was visible at this close.
@@ -256,9 +303,16 @@ def replay_daily(prices, budget, weights, settings, start, end):
         value = h.sum(1)[0]
         high_water = max(high_water+flow, value)
         max_dip = max(max_dip, high_water-value)
+        next_nav, peak, next_valid, dd = flow_neutral_step(
+            np.array([wealth[-1]]), np.array([marked]), np.array([value]), flow,
+            np.array([nav[-1]]), peak, np.array([valid[-1]]))
+        nav.append(next_nav[0]); valid.append(bool(next_valid[0])); max_dd = max(max_dd, dd[0])
+        fee_path.append(fees[0]); dd_path.append(dd[0])
         wealth.append(value); sample.append(h[0].copy()); deposited.append(deposited[-1]+flow)
     return PlanningResult(np.array([wealth]), fees, sales, selling, np.array([max_dip]),
-                          np.array(deposited), np.array(sample), "Session", [str(d.date()) for d in days])
+                          np.array(deposited), np.array(sample), "Session", [str(d.date()) for d in days],
+                          nav=np.array([nav]), return_valid=np.array([valid]), max_drawdown=np.array([max_dd]),
+                          fee_path=np.array([fee_path]), sample_asset_pnl=np.array(asset_pnl), risk_observation="Daily-close", drawdown_path=np.array([dd_path]))
 
 
 def describe_result(result, budget, settings):
@@ -274,6 +328,11 @@ def describe_result(result, budget, settings):
         "dip_90_nominal": float(np.quantile(result.maximum_dip, .9)),
         "median_fees": float(np.median(result.fees)), "median_selling_months": float(np.median(result.selling_months)),
         "total_deposits_nominal": float(result.contributed[-1])}
+    if result.nav is not None:
+        mask = result.return_valid[:, -1]
+        summary["median_twr"] = float(np.median(result.nav[mask, -1]-1)) if mask.any() else None
+        summary["drawdown_90"] = float(np.quantile(result.max_drawdown[mask], .9)) if mask.any() else None
+        summary["median_net_pnl"] = float(np.median(terminal-result.contributed[-1]))
     if budget.goal_today > 0:
         summary["goal_frequency"] = float(np.mean(terminal/deflator >= budget.goal_today))
     return summary

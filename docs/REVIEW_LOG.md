@@ -172,3 +172,63 @@ The existing checker still verifies all 7 v0.2 numerical modules and both public
 Browser checks cover sample-budget selection, an unfunded-reserve case, scenario
 units, dated replay/pause/reset and keyboard navigation. Raw prices, PDFs and
 entered budgets are excluded from the GitHub release.
+
+## v0.4 performance, scenario and optimization upgrade, 2026-10-22
+
+The user correctly challenged a deposit-dominated account-balance animation.
+A hypothetical $200 initial investment plus $200 monthly in the More cash
+example ends the 2022 replay near $2,576.70 after $2,600 of deposits: net
+investment P&L is -$23.30, despite the rising staircase. This is a made-up
+accounting example, not an observation about the user's finances.
+
+The default animated measure is now net investment P&L, with separate account
+balance and unitized return views, a cash reference, exact fee/asset attribution,
+and a return-drawdown panel. Unit issuance separates external contributions
+from performance; money-weighted return is converted to the same replay period
+before display beside cumulative time-weighted return. Unfunded performance
+is missing rather than a fabricated zero return. Purchasing-power views discount
+each deposit and fee at its own payment date. Real P&L includes inflation erosion;
+return percentages remain nominal.
+
+The future engine now samples non-wrapping joint whole-month blocks while
+retaining every observed daily return within each month. It values holdings
+daily and funds/trades at month ends. All allocations share month selections.
+Three explicit excess-log-return assumptions and a 3/6/12-month by two-window
+sensitivity grid expose dependence on the model. The zero-premium assumption
+uses the eligible-month mean at each block offset, accounting for the unequal
+sampling of boundary months; it does not recenter realized simulation draws.
+
+A convex log-barrier risk-budgeting solve provides a genuine equal-variance-
+contribution candidate, with user-selected cash, shrunk covariance, positive-
+definiteness/first-order audits and a same-cash/equal-risky-weight comparator.
+Historical replay fits only pre-event prices. Separately hash-verified risky
+asset history avoids shortening the 2008 covariance window to BIL's inception.
+The optimizer is not a return forecast, suitability assessment, or new algorithm.
+The original execution-risk ML experiment, including its negative ridge result,
+remains available in Research lab without changes to its numerical modules.
+
+Claude performed read-only AI-assisted method and implementation reviews. Four
+substantive findings were corrected: sampler-weighted zero-premium centering,
+comparable return-period labels, the matched cash control, and pre-2008 risky
+history. A final focused review confirmed cash-flow-date discounting (cash equal
+to inflation reconciles to zero real P&L at monthly endpoints) and daily animation
+drawdown consistency. Aggregated future arrays store month-end drawdown snapshots;
+their scalar maximum drawdown uses daily observations. Daily animations receive
+the separate full daily sample path, not those month-end snapshots.
+
+73 local tests passed. They cover accounting, daily/monthly reconciliation,
+unfunded states, purchasing power, capital scaling, non-wrapping/prefix-stable
+sampling, conditional zero-premium centering, SciPy cross-solves of risk budgeting,
+future-price contamination, Streamlit integration and the earlier research tests.
+The offline planner checker verifies 4 numerical source hashes and 42 derived
+demonstration cases (18 future comparisons, 6 sensitivities, 18 historical replays),
+including 3 causal fits and dollar reconciliation within $1e-8. The original
+7-module/72-case execution export audit still passes.
+
+Browser checks verified actual fan and drawdown charts, allocation/covariance
+controls, model/input-window changes, all three animation measures, replay,
+reset and keyboard stepping. Display screenshots use a made-up sample budget.
+Only original code, documentation, aggregate demo audits and these screenshots
+are published. Provider snapshots, paper PDFs, budgets and local environments
+remain excluded. The scenarios are exploratory conditional illustrations; no
+untouched holdout, future probability calibration or superiority claim is made.
