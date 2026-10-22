@@ -1,0 +1,20 @@
+{
+  "protocol_version": "0.1.0",
+  "assets": ["QQQ", "GLD", "IEF"],
+  "target": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333],
+  "band": 0.05,
+  "band_sensitivity": [0.02, 0.05, 0.10],
+  "initial_wealth": [1000.0, 10000.0, 100000.0],
+  "monthly_contributions": [0.0, 100.0, 500.0],
+  "strategies": ["proportional", "annual", "threshold_center", "cashflow_only", "min_sales_band"],
+  "cost_bps": 0.0,
+  "splits": {
+    "development": ["2005-01-01", "2014-12-31"],
+    "validation": ["2015-01-01", "2019-12-31"],
+    "evaluation": ["2020-01-01", "2025-12-31"]
+  },
+  "execution": "previous_close_dollar_plan_next_session_close",
+  "returns": "vendor_adjusted_close_proxy_no_separate_dividend_cash",
+  "scope": "fractional_total_return_units_no_tax_no_whole_share_claim",
+  "bootstrap_seed": 20261022
+}
