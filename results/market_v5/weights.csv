@@ -1,0 +1,177 @@
+universe,model,allocation,fund,weight
+Core,Joint historical blocks,Class example,BIL,0.1
+Core,Joint historical blocks,Class example,SPY,0.15
+Core,Joint historical blocks,Class example,VEA,0.15
+Core,Joint historical blocks,Class example,VWO,0.15
+Core,Joint historical blocks,Class example,GLD,0.135
+Core,Joint historical blocks,Class example,SHY,0.07875
+Core,Joint historical blocks,Class example,IEF,0.07875
+Core,Joint historical blocks,Class example,TLT,0.07875
+Core,Joint historical blocks,Class example,TIP,0.07875
+Core,Joint historical blocks,Minimum variance,BIL,0.10000000000000006
+Core,Joint historical blocks,Minimum variance,SPY,0.3216341636439485
+Core,Joint historical blocks,Minimum variance,VEA,0.07836542179201691
+Core,Joint historical blocks,Minimum variance,VWO,4.1456481288579695e-07
+Core,Joint historical blocks,Minimum variance,GLD,1.1232779617928665e-11
+Core,Joint historical blocks,Minimum variance,SHY,0.3964831304724888
+Core,Joint historical blocks,Minimum variance,IEF,2.7583305822844556e-11
+Core,Joint historical blocks,Minimum variance,TLT,0.10351686947842458
+Core,Joint historical blocks,Minimum variance,TIP,9.492226170853309e-12
+Core,Joint historical blocks,Scenario downside,BIL,0.09999999999999862
+Core,Joint historical blocks,Scenario downside,SPY,0.3976546498217792
+Core,Joint historical blocks,Scenario downside,VEA,6.924570041748394e-13
+Core,Joint historical blocks,Scenario downside,VWO,0.002345350177451296
+Core,Joint historical blocks,Scenario downside,GLD,0.007421850085633183
+Core,Joint historical blocks,Scenario downside,SHY,0.436974994578733
+Core,Joint historical blocks,Scenario downside,IEF,4.497373135260727e-12
+Core,Joint historical blocks,Scenario downside,TLT,0.05560315533121494
+Core,Joint historical blocks,Scenario downside,TIP,0.0
+Core,Joint historical blocks,Feasible equal-weight control,BIL,0.10000000000000007
+Core,Joint historical blocks,Feasible equal-weight control,SPY,0.13333333337282777
+Core,Joint historical blocks,Feasible equal-weight control,VEA,0.13333333337282777
+Core,Joint historical blocks,Feasible equal-weight control,VWO,0.13333333337282777
+Core,Joint historical blocks,Feasible equal-weight control,GLD,0.09999999996866392
+Core,Joint historical blocks,Feasible equal-weight control,SHY,0.09999999997821314
+Core,Joint historical blocks,Feasible equal-weight control,IEF,0.09999999997821314
+Core,Joint historical blocks,Feasible equal-weight control,TLT,0.09999999997821314
+Core,Joint historical blocks,Feasible equal-weight control,TIP,0.09999999997821314
+Core,Correlated Brownian motion (GBM),Class example,BIL,0.1
+Core,Correlated Brownian motion (GBM),Class example,SPY,0.15
+Core,Correlated Brownian motion (GBM),Class example,VEA,0.15
+Core,Correlated Brownian motion (GBM),Class example,VWO,0.15
+Core,Correlated Brownian motion (GBM),Class example,GLD,0.135
+Core,Correlated Brownian motion (GBM),Class example,SHY,0.07875
+Core,Correlated Brownian motion (GBM),Class example,IEF,0.07875
+Core,Correlated Brownian motion (GBM),Class example,TLT,0.07875
+Core,Correlated Brownian motion (GBM),Class example,TIP,0.07875
+Core,Correlated Brownian motion (GBM),Minimum variance,BIL,0.10000000000000006
+Core,Correlated Brownian motion (GBM),Minimum variance,SPY,0.3216341636439485
+Core,Correlated Brownian motion (GBM),Minimum variance,VEA,0.07836542179201691
+Core,Correlated Brownian motion (GBM),Minimum variance,VWO,4.1456481288579695e-07
+Core,Correlated Brownian motion (GBM),Minimum variance,GLD,1.1232779617928665e-11
+Core,Correlated Brownian motion (GBM),Minimum variance,SHY,0.3964831304724888
+Core,Correlated Brownian motion (GBM),Minimum variance,IEF,2.7583305822844556e-11
+Core,Correlated Brownian motion (GBM),Minimum variance,TLT,0.10351686947842458
+Core,Correlated Brownian motion (GBM),Minimum variance,TIP,9.492226170853309e-12
+Core,Correlated Brownian motion (GBM),Scenario downside,BIL,0.09999999999999862
+Core,Correlated Brownian motion (GBM),Scenario downside,SPY,0.3976546498217792
+Core,Correlated Brownian motion (GBM),Scenario downside,VEA,6.924570041748394e-13
+Core,Correlated Brownian motion (GBM),Scenario downside,VWO,0.002345350177451296
+Core,Correlated Brownian motion (GBM),Scenario downside,GLD,0.007421850085633183
+Core,Correlated Brownian motion (GBM),Scenario downside,SHY,0.436974994578733
+Core,Correlated Brownian motion (GBM),Scenario downside,IEF,4.497373135260727e-12
+Core,Correlated Brownian motion (GBM),Scenario downside,TLT,0.05560315533121494
+Core,Correlated Brownian motion (GBM),Scenario downside,TIP,0.0
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,BIL,0.10000000000000007
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,SPY,0.13333333337282777
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,VEA,0.13333333337282777
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,VWO,0.13333333337282777
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,GLD,0.09999999996866392
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,SHY,0.09999999997821314
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,IEF,0.09999999997821314
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,TLT,0.09999999997821314
+Core,Correlated Brownian motion (GBM),Feasible equal-weight control,TIP,0.09999999997821314
+Extended,Joint historical blocks,Class example,BIL,0.1
+Extended,Joint historical blocks,Class example,SPY,0.09
+Extended,Joint historical blocks,Class example,QQQ,0.09
+Extended,Joint historical blocks,Class example,IWM,0.09
+Extended,Joint historical blocks,Class example,VEA,0.09
+Extended,Joint historical blocks,Class example,VWO,0.09
+Extended,Joint historical blocks,Class example,GLD,0.045000000000000005
+Extended,Joint historical blocks,Class example,SLV,0.045000000000000005
+Extended,Joint historical blocks,Class example,USO,0.045000000000000005
+Extended,Joint historical blocks,Class example,SHY,0.07875
+Extended,Joint historical blocks,Class example,IEF,0.07875
+Extended,Joint historical blocks,Class example,TLT,0.07875
+Extended,Joint historical blocks,Class example,TIP,0.07875
+Extended,Joint historical blocks,Minimum variance,BIL,0.10000000000000005
+Extended,Joint historical blocks,Minimum variance,SPY,0.32163322588161913
+Extended,Joint historical blocks,Minimum variance,QQQ,1.0972693710691239e-09
+Extended,Joint historical blocks,Minimum variance,IWM,1.4231975081379195e-10
+Extended,Joint historical blocks,Minimum variance,VEA,0.07835505876274453
+Extended,Joint historical blocks,Minimum variance,VWO,1.1714138178536425e-05
+Extended,Joint historical blocks,Minimum variance,GLD,3.3644291053648584e-10
+Extended,Joint historical blocks,Minimum variance,SLV,6.675906797075011e-11
+Extended,Joint historical blocks,Minimum variance,USO,6.279078733605107e-11
+Extended,Joint historical blocks,Minimum variance,SHY,0.3964826204428256
+Extended,Joint historical blocks,Minimum variance,IEF,3.0424554476893943e-09
+Extended,Joint historical blocks,Minimum variance,TLT,0.10351737588500926
+Extended,Joint historical blocks,Minimum variance,TIP,1.4158559980464852e-10
+Extended,Joint historical blocks,Scenario downside,BIL,0.09999999999996592
+Extended,Joint historical blocks,Scenario downside,SPY,0.3976546501565685
+Extended,Joint historical blocks,Scenario downside,QQQ,6.531223361024987e-13
+Extended,Joint historical blocks,Scenario downside,IWM,0.0
+Extended,Joint historical blocks,Scenario downside,VEA,1.4776685650142101e-12
+Extended,Joint historical blocks,Scenario downside,VWO,0.0023453498410578736
+Extended,Joint historical blocks,Scenario downside,GLD,0.007421850184526362
+Extended,Joint historical blocks,Scenario downside,SLV,0.0
+Extended,Joint historical blocks,Scenario downside,USO,0.0
+Extended,Joint historical blocks,Scenario downside,SHY,0.4369749943256203
+Extended,Joint historical blocks,Scenario downside,IEF,8.921464198188281e-12
+Extended,Joint historical blocks,Scenario downside,TLT,0.055603155481208866
+Extended,Joint historical blocks,Scenario downside,TIP,0.0
+Extended,Joint historical blocks,Feasible equal-weight control,BIL,0.10000000000000084
+Extended,Joint historical blocks,Feasible equal-weight control,SPY,0.08000000020521869
+Extended,Joint historical blocks,Feasible equal-weight control,QQQ,0.08000000020521869
+Extended,Joint historical blocks,Feasible equal-weight control,IWM,0.08000000020521869
+Extended,Joint historical blocks,Feasible equal-weight control,VEA,0.08000000020521869
+Extended,Joint historical blocks,Feasible equal-weight control,VWO,0.08000000020521869
+Extended,Joint historical blocks,Feasible equal-weight control,GLD,0.06666666659215559
+Extended,Joint historical blocks,Feasible equal-weight control,SLV,0.06666666659215559
+Extended,Joint historical blocks,Feasible equal-weight control,USO,0.06666666654313655
+Extended,Joint historical blocks,Feasible equal-weight control,SHY,0.07499999981161448
+Extended,Joint historical blocks,Feasible equal-weight control,IEF,0.07499999981161448
+Extended,Joint historical blocks,Feasible equal-weight control,TLT,0.07499999981161448
+Extended,Joint historical blocks,Feasible equal-weight control,TIP,0.07499999981161448
+Extended,Correlated Brownian motion (GBM),Class example,BIL,0.1
+Extended,Correlated Brownian motion (GBM),Class example,SPY,0.09
+Extended,Correlated Brownian motion (GBM),Class example,QQQ,0.09
+Extended,Correlated Brownian motion (GBM),Class example,IWM,0.09
+Extended,Correlated Brownian motion (GBM),Class example,VEA,0.09
+Extended,Correlated Brownian motion (GBM),Class example,VWO,0.09
+Extended,Correlated Brownian motion (GBM),Class example,GLD,0.045000000000000005
+Extended,Correlated Brownian motion (GBM),Class example,SLV,0.045000000000000005
+Extended,Correlated Brownian motion (GBM),Class example,USO,0.045000000000000005
+Extended,Correlated Brownian motion (GBM),Class example,SHY,0.07875
+Extended,Correlated Brownian motion (GBM),Class example,IEF,0.07875
+Extended,Correlated Brownian motion (GBM),Class example,TLT,0.07875
+Extended,Correlated Brownian motion (GBM),Class example,TIP,0.07875
+Extended,Correlated Brownian motion (GBM),Minimum variance,BIL,0.10000000000000005
+Extended,Correlated Brownian motion (GBM),Minimum variance,SPY,0.32163322588161913
+Extended,Correlated Brownian motion (GBM),Minimum variance,QQQ,1.0972693710691239e-09
+Extended,Correlated Brownian motion (GBM),Minimum variance,IWM,1.4231975081379195e-10
+Extended,Correlated Brownian motion (GBM),Minimum variance,VEA,0.07835505876274453
+Extended,Correlated Brownian motion (GBM),Minimum variance,VWO,1.1714138178536425e-05
+Extended,Correlated Brownian motion (GBM),Minimum variance,GLD,3.3644291053648584e-10
+Extended,Correlated Brownian motion (GBM),Minimum variance,SLV,6.675906797075011e-11
+Extended,Correlated Brownian motion (GBM),Minimum variance,USO,6.279078733605107e-11
+Extended,Correlated Brownian motion (GBM),Minimum variance,SHY,0.3964826204428256
+Extended,Correlated Brownian motion (GBM),Minimum variance,IEF,3.0424554476893943e-09
+Extended,Correlated Brownian motion (GBM),Minimum variance,TLT,0.10351737588500926
+Extended,Correlated Brownian motion (GBM),Minimum variance,TIP,1.4158559980464852e-10
+Extended,Correlated Brownian motion (GBM),Scenario downside,BIL,0.09999999999996592
+Extended,Correlated Brownian motion (GBM),Scenario downside,SPY,0.3976546501565685
+Extended,Correlated Brownian motion (GBM),Scenario downside,QQQ,6.531223361024987e-13
+Extended,Correlated Brownian motion (GBM),Scenario downside,IWM,0.0
+Extended,Correlated Brownian motion (GBM),Scenario downside,VEA,1.4776685650142101e-12
+Extended,Correlated Brownian motion (GBM),Scenario downside,VWO,0.0023453498410578736
+Extended,Correlated Brownian motion (GBM),Scenario downside,GLD,0.007421850184526362
+Extended,Correlated Brownian motion (GBM),Scenario downside,SLV,0.0
+Extended,Correlated Brownian motion (GBM),Scenario downside,USO,0.0
+Extended,Correlated Brownian motion (GBM),Scenario downside,SHY,0.4369749943256203
+Extended,Correlated Brownian motion (GBM),Scenario downside,IEF,8.921464198188281e-12
+Extended,Correlated Brownian motion (GBM),Scenario downside,TLT,0.055603155481208866
+Extended,Correlated Brownian motion (GBM),Scenario downside,TIP,0.0
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,BIL,0.10000000000000084
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,SPY,0.08000000020521869
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,QQQ,0.08000000020521869
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,IWM,0.08000000020521869
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,VEA,0.08000000020521869
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,VWO,0.08000000020521869
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,GLD,0.06666666659215559
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,SLV,0.06666666659215559
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,USO,0.06666666654313655
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,SHY,0.07499999981161448
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,IEF,0.07499999981161448
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,TLT,0.07499999981161448
+Extended,Correlated Brownian motion (GBM),Feasible equal-weight control,TIP,0.07499999981161448

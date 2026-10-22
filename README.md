@@ -9,7 +9,7 @@ The research question is how allocation drift and required selling change with
 monthly contributions relative to wealth. The focus is portfolio implementation: allocating new cash, measuring drift,
 and quantifying unavoidable sales under explicit assumptions.
 
-## Budget planner and research demo (v0.4)
+## Multi-asset market simulator (v0.5)
 
 ```bash
 python3 -m venv .venv
@@ -17,7 +17,51 @@ python3 -m venv .venv
 .venv/bin/python -m roaring_returns demo
 ```
 
-Open **http://127.0.0.1:8501**. The synthetic market works offline without keys.
+Open **http://127.0.0.1:8501**. The default **Market simulator** works offline
+with explicitly labeled synthetic inputs. To calibrate on observed prices:
+
+```bash
+.venv/bin/python -m roaring_returns fetch-market --cutoff 2026-10-22
+```
+
+The separate dated snapshot contains 13 ETF proxies: BIL, SPY, QQQ, IWM, VEA,
+VWO, GLD, SLV, USO, SHY, IEF, TLT and TIP. The local common calendar is
+2007-07-26–2026-10-22, 4,842 daily sessions. Close and adjusted close are kept
+separate. USO is an oil-futures fund, not spot crude; GLD/SLV are fund proxies,
+and Treasury funds have price and duration risk. Raw data is not redistributed.
+
+![Conditional paths and representative scenarios](docs/demo/market_v5_paths.jpg)
+
+- **Simulation**: 500–2,000 correlated daily paths, up to 150 visible thin
+  paths, actual group representatives, P5/median/P95 and outcome/drawdown
+  distributions. Joint historical blocks are the default; GBM is a normal-model
+  comparison. Small joint shocks produce different sequences, not a forecast
+  that one selected sequence must occur.
+- **Real markets**: observed return indices, split-adjusted historical quotes,
+  daily returns and weekly correlations. Data updates require an explicit fetch.
+- **Optimize**: fixed cash, equity minimum, individual/commodity/oil caps;
+  constrained minimum variance and full-window one-month CVaR, with an equal-
+  capital reference projected onto the same feasible set. Weight-window
+  stability and binding constraints expose how much the result depends on inputs.
+- **Model audit**: assumptions, observed tails versus normal tails, raw/model
+  correlations and snapshot provenance.
+
+The largest **descriptive scenario group** is highlighted with an actual path
+nearest its center. Its model-internal share depends on the clustering rule,
+horizon and simulated distribution; it is not a posterior probability or a
+uniquely most-likely future. Optimization considers the scenario distribution,
+including adverse outcomes, rather than chasing one representative line.
+
+[Methods and limitations](docs/MARKET_SIMULATOR.md) ·
+[32-case derived model audit](results/market_v5/README.md) ·
+[Observed-market preview](docs/demo/market_v5_real_data.jpg) ·
+[Allocation comparison](docs/demo/market_v5_optimization.jpg) ·
+offline check: `python scripts/check_market_audit.py`.
+
+## Budget planner and execution research
+
+The previous workspaces are preserved. Select **Budget planner** for the v0.4
+protected-cash workflow; select **Research lab** for the frozen execution study.
 Start on **Budget planner**: separate protected cash, enter monthly saving and
 a time horizon, then compare fixed examples, a custom mix and a solved risk-balanced
 candidate. The main chart separates **investment P&L**, **returns excluding deposits**,

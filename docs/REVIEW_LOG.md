@@ -232,3 +232,73 @@ Only original code, documentation, aggregate demo audits and these screenshots
 are published. Provider snapshots, paper PDFs, budgets and local environments
 remain excluded. The scenarios are exploratory conditional illustrations; no
 untouched holdout, future probability calibration or superiority claim is made.
+
+## v0.5 multi-asset ensembles and representative scenarios, 2026-10-22
+
+The user requested realistic market inputs, many visible branching paths, and
+an explanation of which scenario patterns the model regards as more common.
+A new English Market simulator workspace is the default entry point. Prior
+budget and execution workspaces remain available without changing their numeric
+source hashes or published outcomes.
+
+An independently versioned local Yahoo snapshot contains 13 ETF proxies through
+2026-10-22, with 4,842 common sessions from 2007-07-26. Actual quote/reference
+levels are separated from adjusted-close return proxies. Oil exposure is USO,
+a futures fund with roll/structure risk, not spot crude. Raw and processed
+hashes, splits, positive prices, same-provider return conventions and common
+calendars are checked. Updates are explicit; old snapshots are not overwritten.
+There has been no second-provider or CRSP validation of these new inputs.
+
+The default generator uses joint non-wrapping daily blocks, with exact
+conditional centering at each block offset. Correlated GBM is an explicit
+normal-log-shock comparator. Both use the same stated cash anchor and retained
+historical excess log drift. Daily unitized NAV, cash flows, fees, drawdowns
+and arbitrary-N account conservation reuse the earlier net-trade conventions.
+Model months have 21 sessions, not literal future holiday calendars.
+
+Claude performed AI-assisted read-only design and numerical reviews. The first
+implementation review identified covariance regularization that suppressed
+observed equity correlations, random-window sensitivity in the CVaR optimizer,
+and unstable single-start shape grouping. Corrections made before publication:
+
+1. Default covariance is observed completed-week sample covariance, with only
+   a minimal eigenvalue floor if needed; raw and model correlations are shown.
+   On the reviewed full core sample, the floor did not bind and covariance
+   differs from raw only at floating-point precision.
+2. Downside allocation now solves CVaR over all overlapping 21-session historical
+   windows, not a random subset of 1,000. With 4,821 windows, 5% tail mass is
+   241.05 observations; the fractional boundary is included in the objective
+   audit. Overlapping windows are explicitly not independent observations.
+3. Descriptive grouping uses five equally spaced horizon fractions of log NAV
+   plus maximum drawdown, 12 fixed initializations and minimum inertia. Group
+   representatives are actual group members nearest their feature center.
+   Shares are rounded, and the UI explains dependence on grouping and simulation
+   batch. Changing random batches can shift shares by several percentage points.
+
+Claude's focused recheck found these corrections sound and no new substantive
+numerical error. An earlier observation about absent tests was made while the
+new test file was being added; the final suite contains 87 passing tests.
+These include GBM moment/correlation checks, cash annuity and unitization,
+prefix consistency, exact block/window centering, future-data poisoning,
+arbitrary-N ledger and scale invariance, snapshot corruption, fractional CVaR,
+HiGHS LP and SciPy QP cross-solves, group membership/determinism and four-view
+Streamlit integration with GBM, fresh batches and advanced USO inspection.
+
+The public export contains 32 conditional model cases and 128 scenario-group
+rows for a made-up $1,000 initial + $100/month account. Source/artifact hashes,
+allocation caps, group partitions and dollar conservation are verified offline;
+maximum observed dollar reconciliation error is below $1e-8. The old 42-case
+planner audit and both 36-case execution exports still pass.
+
+The largest descriptive group is not promoted to a posterior probability or a
+uniquely most-likely future trajectory. The minimum-variance and one-month CVaR
+objectives consider risk across outcomes under explicit exposure constraints.
+They do not optimize a predicted multi-year path or establish a suitable
+investment. Different generators and random seeds add no independent historical
+evidence, and the full historical window has already been examined.
+
+Live browser checks verified the multi-path canvas, representative-group changes,
+GBM switching, P&L/return views, animation/pause/reset/keyboard stepping, observed
+stock/gold/oil/Treasury curves, and the final optimizer page. Integration tests
+also verify fresh random batches, USO inspection and budget retention across all
+four views. Public preview images use the made-up default account.

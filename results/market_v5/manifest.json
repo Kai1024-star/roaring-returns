@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "numerical_module_hashes": {
+    "market_models.py": "f6aa58cf5e381e5e4fc023804fc16b04c52ac5a25a195913bf6713dd41732a98",
+    "market_data.py": "51191b4efd58c2e92eed94668205e68816e458d830028f5f9723c470f9c58af8",
+    "planner.py": "5d440bb41c20ddb68550f9129af67edfc1c57a7f8b021f51cd7133e8cd12db58",
+    "data.py": "c89333e3e49ef6d4a96912bf25400a108e3b2312b7c51279bc9af6c7536cb2d1",
+    "synthetic.py": "c49630f7615e0c76573f5e89c8d30d0cbc04feedd215be7d42c8ac83f1711e13"
+  },
+  "artifact_hashes": {
+    "summary.csv": "ca316ed61be5cb58fd90f8a2477a76e6959451ae291d2c1de45ff8057ad784b2",
+    "calibration.json": "5a0fd371ba554214a2d29bc7e8500624a988fe6906d9f65f218da5743abee0c7",
+    "scenario_groups.csv": "524dfa136f2d4093a305f00a89b4846499e8dc1da50a1a3390faa808b108dab7",
+    "data_manifest.json": "005dd8a2d9b0764c7ecb0b28aa4b716f155eb0ea213ddc63326b2e38ea8e70b3",
+    "weights.csv": "0993d080a016ff1fb3711bdfda5ae2304148584cbca547c9c1788423a562a83f"
+  },
+  "case_count": 32,
+  "paths_per_case": 1000,
+  "seed": 20261022,
+  "optimization": "All overlapping historical 21-session windows; no training seed",
+  "parameters": {
+    "cash": 0.1,
+    "equity_minimum": 0.4,
+    "single_risky_cap": 0.45,
+    "commodity_cap": 0.2,
+    "oil_cap": 0.1,
+    "retained_excess_log_mean": 0.25,
+    "cash_rate": 0.03,
+    "cost_bps": 2,
+    "block_sessions": 21,
+    "requested_calibration_years": 20
+  },
+  "budget": "Made-up $1000 investable now + $100/month; no user financial data",
+  "interpretation": "Conditional model checks, not posterior path probabilities or prospective evidence"
+}

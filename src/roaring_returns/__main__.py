@@ -6,7 +6,7 @@ from .experiments import run_experiments
 
 def main():
     parser = argparse.ArgumentParser(description="Cash-flow rebalancing research prototype")
-    parser.add_argument("command", choices=["fetch", "fetch-planner", "run", "research", "demo"])
+    parser.add_argument("command", choices=["fetch", "fetch-planner", "fetch-market", "run", "research", "demo"])
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--split", choices=["development", "validation", "evaluation"], default="development")
     parser.add_argument("--refresh", action="store_true", help="Explicitly replace cached provider snapshots")
@@ -14,6 +14,7 @@ def main():
     parser.add_argument("--publish", action="store_true", help="Export derived v0.2 results to the public results folder")
     parser.add_argument("--period", choices=["2005-2014", "2015-2019", "2020-2025"], action="append")
     parser.add_argument("--port", type=int, default=8501, help="Local demo port")
+    parser.add_argument("--cutoff", help="Explicit dated market snapshot (YYYY-MM-DD); prior snapshots stay immutable")
     args = parser.parse_args()
     if args.command == "fetch":
         result = fetch_data(args.root, args.refresh)
@@ -24,6 +25,10 @@ def main():
         from .planner_data import fetch_planner_data
         result = fetch_planner_data(args.root)
         print(f"Planner snapshot: {', '.join(result['assets'])}; {result['first_session']} to {result['last_session']}.")
+    elif args.command == "fetch-market":
+        from .market_data import fetch_market
+        result=fetch_market(args.root,args.cutoff)
+        print(f"Market snapshot: {len(result['assets'])} ETFs, {result['first_date']} to {result['last_date']}, {result['common_rows']} sessions.")
     elif args.command == "research":
         from .research_runner import run_study, publish_study
         destination = args.root/"results"/("execution_v2" if args.source == "yahoo" else "execution_v2_synthetic")

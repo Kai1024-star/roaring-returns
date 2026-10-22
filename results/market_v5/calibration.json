@@ -1,0 +1,46 @@
+[
+  {
+    "universe": "Core",
+    "symbols": [
+      "BIL",
+      "SPY",
+      "VEA",
+      "VWO",
+      "GLD",
+      "SHY",
+      "IEF",
+      "TLT",
+      "TIP"
+    ],
+    "first_date": "2007-07-27",
+    "last_date": "2026-10-22",
+    "daily_observations": 4841,
+    "weekly_observations": 1003,
+    "covariance_through": "2026-10-16",
+    "minimum_eigenvalue": 5.4894392470536986e-05
+  },
+  {
+    "universe": "Extended",
+    "symbols": [
+      "BIL",
+      "SPY",
+      "QQQ",
+      "IWM",
+      "VEA",
+      "VWO",
+      "GLD",
+      "SLV",
+      "USO",
+      "SHY",
+      "IEF",
+      "TLT",
+      "TIP"
+    ],
+    "first_date": "2007-07-27",
+    "last_date": "2026-10-22",
+    "daily_observations": 4841,
+    "weekly_observations": 1003,
+    "covariance_through": "2026-10-16",
+    "minimum_eigenvalue": 5.479302338480254e-05
+  }
+]

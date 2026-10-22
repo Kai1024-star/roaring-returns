@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "cutoff": "2026-10-22",
+  "created_utc": "2026-10-22T22:43:54.614074+00:00",
+  "source": "Yahoo Finance daily chart snapshots",
+  "independent_provider_validated": false,
+  "assets": [
+    "BIL",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "VEA",
+    "VWO",
+    "GLD",
+    "SLV",
+    "USO",
+    "SHY",
+    "IEF",
+    "TLT",
+    "TIP"
+  ],
+  "first_date": "2007-07-26",
+  "last_date": "2026-10-22",
+  "common_rows": 4842,
+  "processed": {
+    "adjusted.csv": "b6411fe71d4f182d43361c062dd880501b8bc322238ae192d419c5598b18d350",
+    "quotes.csv": "ea63df7a7ef03f91052cb293bbcedd39c1961443921769e8ab1427a106f6488d"
+  },
+  "note": "Adjusted closes are total-return proxies. USO is a futures fund, not spot crude. No raw redistribution.",
+  "files": [
+    {
+      "symbol": "BIL",
+      "sha256": "7ec1e5f229b57427b41b731b10a7de2d07f006ac36eb5af501055de16d1c6eda",
+      "rows": 4882,
+      "first_date": "2007-05-30",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.2244532181515666e-06,
+      "splits": 1,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "SPY",
+      "sha256": "3951045ef3f2321691ba14f5c191d57c536bead979796301f5c935350f658573",
+      "rows": 8491,
+      "first_date": "1993-01-29",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.3245007659534735e-06,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "QQQ",
+      "sha256": "e4b2f2956e59f9bfaf91f5bb29e8d37142c31769cdde0b7528048004a7d7d664",
+      "rows": 6949,
+      "first_date": "1999-03-10",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.3247388537251936e-06,
+      "splits": 1,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "IWM",
+      "sha256": "8d1c0fd6789f57885698c37c311379778f27796d1547903d286d9965272d263d",
+      "rows": 6641,
+      "first_date": "2000-05-26",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.3583836524500015e-06,
+      "splits": 1,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "VEA",
+      "sha256": "49141f71073c47133bd66d520ef5279c24e331032df6d1ec252ca4a5dcbac53b",
+      "rows": 4842,
+      "first_date": "2007-07-26",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 9.613771883021371e-07,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "VWO",
+      "sha256": "1e8227bf2427b9b64c76a0ecff3ed6adf9b93efd0fb581c5e44868a5248308fc",
+      "rows": 5440,
+      "first_date": "2005-03-10",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.0090727246003794e-06,
+      "splits": 1,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "GLD",
+      "sha256": "bb09eb2754483ba8e480c5387be92dbee3680908201629c31a8b670c70576beb",
+      "rows": 5516,
+      "first_date": "2004-11-18",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 0.0,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "SLV",
+      "sha256": "82c972cac92233529a688a9b01a9361e07a35576b61dd4c14a2edd9a3863b63a",
+      "rows": 5154,
+      "first_date": "2006-04-28",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 0.0,
+      "splits": 1,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "USO",
+      "sha256": "19da3fb1a33fdc6c610ebc7342b3a35b4205b63e166cb832fdb6b2511e215d0d",
+      "rows": 5167,
+      "first_date": "2006-04-10",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 0.0,
+      "splits": 1,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "SHY",
+      "sha256": "d3d543ee384f5081718bb5d79b5fdca96d13b0ac28ba0da4378041efb293d6c5",
+      "rows": 6098,
+      "first_date": "2002-07-30",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.983164949370675e-06,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "IEF",
+      "sha256": "1a6ced3e5fe41fc47cca6db6b950e1c4afeed97cd6727f60021992b64f4b8713",
+      "rows": 6098,
+      "first_date": "2002-07-30",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.9011712681926696e-06,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "TLT",
+      "sha256": "1e08866ccecd51240003b0541bb03b82dee0d4ad57a2e7b96572883507f4b09a",
+      "rows": 6098,
+      "first_date": "2002-07-30",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 2.0307307131428587e-06,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    },
+    {
+      "symbol": "TIP",
+      "sha256": "1985d9e739beb782a01c8bcdda3a978e175e34ada71b3d9f0240a9e12c011c26",
+      "rows": 5756,
+      "first_date": "2003-12-05",
+      "last_date": "2026-10-22",
+      "ordinary_return_max_difference": 1.541778120062176e-06,
+      "splits": 0,
+      "source": "Yahoo Finance chart endpoint; same-provider checks only"
+    }
+  ]
+}

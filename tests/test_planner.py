@@ -194,7 +194,9 @@ class PlannerUITests(unittest.TestCase):
         from roaring_returns import home
         with TemporaryDirectory() as folder, patch.object(home, 'ROOT', Path(folder)):
             home._market.clear()
-            app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40).run()
+            app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40)
+            app.session_state['workspace']='Budget planner'
+            app.run()
             self.assertFalse(app.exception)
             self.assertTrue(any('SYNTHETIC DEMO' in message.value for message in app.info))
             self.assertTrue(any('designed monthly shocks' in message.value.lower() for message in app.caption))
@@ -202,7 +204,9 @@ class PlannerUITests(unittest.TestCase):
 
     def test_optimizer_controls_scenario_modes_and_unfunded_state(self):
         from streamlit.testing.v1 import AppTest
-        app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40).run()
+        app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40)
+        app.session_state['workspace']='Budget planner'
+        app.run()
         next(r for r in app.radio if r.label == 'Examples and candidates (choose one)').set_value('Risk-balanced candidate')
         next(s for s in app.slider if s.label == 'Cash share of model candidate (%)').set_value(40)
         next(s for s in app.selectbox if s.label == 'Covariance lookback (sessions)').set_value(252)
@@ -222,7 +226,9 @@ class PlannerUITests(unittest.TestCase):
 
     def test_default_home_and_presets_and_zero_budget(self):
         from streamlit.testing.v1 import AppTest
-        app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40).run()
+        app = AppTest.from_file(str(Path(__file__).resolve().parents[1]/'demo_app.py'), default_timeout=40)
+        app.session_state['workspace']='Budget planner'
+        app.run()
         self.assertFalse(app.exception)
         self.assertIn('Small budget.', app.title[0].value)
         self.assertEqual(next(r for r in app.radio if r.label == 'Examples and candidates (choose one)').value, 'Savings reference')

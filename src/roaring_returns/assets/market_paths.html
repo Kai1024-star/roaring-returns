@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:transparent;color:#d7e5ef}.card{background:#102537;border:1px solid #294456;border-radius:18px;padding:23px 25px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px}.kicker{letter-spacing:2px;font-size:10px;color:#8faebe}.title{font-size:21px;font-weight:650;margin:7px 0}.note{font-size:11px;line-height:1.6;color:#a2b8c6}.modes{display:flex;gap:6px;margin:16px 0}.modes button,button{border:1px solid #385468;border-radius:7px;background:#1c384a;color:#d7e5ef;padding:8px 11px;cursor:pointer;font-size:11px}.modes button[aria-pressed=true]{background:#d6eeec;color:#143b43;border-color:#d6eeec}canvas{display:block;width:100%;height:355px;touch-action:pan-y}.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:10px;color:#a5becd;margin:12px 0}.controls{display:flex;gap:12px;align-items:center;margin:15px 0 7px}input{flex:1;accent-color:#5bd0c8;min-width:50px}.step{font-size:11px;color:#c3d7e5;min-width:90px}.info{font-size:12px;color:#d7e5ef;min-height:23px;margin:10px 0}.footer{padding-top:12px;border-top:1px solid #294456;font-size:10px;line-height:1.6;color:#94afc1}.pill{background:#244152;border-radius:15px;padding:6px 12px;font-size:11px;white-space:nowrap}@media(max-width:620px){.card{padding:16px 12px}.top{align-items:start}.title{font-size:17px}canvas{height:320px}.step{min-width:65px;font-size:10px}.modes button{padding:7px;font-size:10px}}
+</style></head><body><section class="card">
+<div class="top"><div><div class="kicker">CONDITIONAL MONTE CARLO / DAILY PATHS</div><div class="title" id="title"></div></div><span class="pill" id="count"></span></div>
+<div class="note" id="model"></div>
+<div class="modes" role="group" aria-label="Simulation chart measure"><button data-mode="return" aria-pressed="true">Investment return</button><button data-mode="pnl" aria-pressed="false">Investment P&amp;L</button><button data-mode="balance" aria-pressed="false">Account balance</button></div>
+<canvas id="chart" role="img" aria-label="Many conditional simulated paths with pointwise fifth, median and ninety-fifth percentiles"></canvas>
+<div class="legend"><span>━━ Fixed IDs · possible sequences</span><span style="color:#f6cf83">━━ Selected group representative</span><span style="color:#fff">━━ Pointwise median</span><span>┄┄ P5 / P95 · not a coverage guarantee</span></div>
+<div class="info" id="readout" aria-live="polite"></div>
+<div class="controls"><button id="play">Animate paths</button><button id="reset">Reset</button><span class="step" id="step"></span><input type="range" min="0" value="0" id="timeline" aria-label="Simulation trading session"></div>
+<div class="footer" id="footer"></div></section>
+<script>
+const d=__PAYLOAD__,canvas=document.getElementById('chart'),ctx=canvas.getContext('2d');let mode='return',end=d.days,hover=null,playing=false,last=0;
+const palette=['#4ac9bc','#729cfd','#b696f2','#f1bd72','#69bded','#e98e9c','#94c9a1','#bcbded'];
+document.getElementById('title').textContent=d.name;
+document.getElementById('count').textContent=d.shown+' shown / '+d.total+' simulated';
+document.getElementById('model').textContent=d.model+' · calibration '+d.first+'–'+d.last+' · '+d.assets+' funds';
+document.getElementById('footer').textContent='Thin curves use fixed path IDs. Bold curves are actual simulations nearest scenario-group centers, not selected winners. Quantiles summarize all '+d.total+' paths; the median is not a single path. 21 model sessions/month; no intraday lows. Model scenarios are not forecasts or promised odds.';
+const fmt=v=>mode==='return'?v.toFixed(1)+'%':(v<0?'−$':'$')+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:Math.abs(v)<100?2:0});
+function data(){return d[mode]}
+function paint(){
+const rect=canvas.getBoundingClientRect(),r=window.devicePixelRatio||1,w=rect.width,h=rect.height;canvas.width=w*r;canvas.height=h*r;ctx.setTransform(r,0,0,r,0,0);
+const a=data(),pad={l:66,r:12,t:18,b:37},pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;let low=Math.min(0,...a.q[0]),high=Math.max(0,...a.q[2]);
+for(const p of a.paths){for(const v of p){if(v!==null){low=Math.min(low,v);high=Math.max(high,v)}}}if(high-low<1e-8){high+=1;low-=1}const extra=(high-low)*.07;low-=extra;high+=extra;
+const x=i=>pad.l+i/d.days*pw,y=v=>pad.t+(high-v)/(high-low)*ph;
+ctx.clearRect(0,0,w,h);ctx.font='10px system-ui';ctx.textBaseline='middle';
+for(let j=0;j<5;j++){const v=low+j*(high-low)/4;ctx.strokeStyle='#2c4557';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(pad.l,y(v));ctx.lineTo(w-pad.r,y(v));ctx.stroke();ctx.fillStyle='#8faebe';ctx.textAlign='right';ctx.fillText(fmt(v),pad.l-9,y(v))}
+ctx.textAlign='center';ctx.fillStyle='#8faebe';for(let j=0;j<5;j++){const i=Math.round(d.days*j/4);ctx.textAlign=j===0?'left':j===4?'right':'center';ctx.fillText((i/21).toFixed(0)+' mo',x(i),h-13)}
+ctx.save();ctx.beginPath();ctx.rect(pad.l,pad.t,pw,ph);ctx.clip();
+function line(p,color,width,dash,limit=end){ctx.beginPath();let started=false;for(let i=0;i<=limit;i++){if(p[i]===null){started=false;continue}if(!started){ctx.moveTo(x(i),y(p[i]));started=true}else ctx.lineTo(x(i),y(p[i]))}ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash||[]);ctx.stroke();ctx.setLineDash([])}
+a.paths.forEach((p,i)=>line(p,palette[i%palette.length]+'55',.8));
+line(a.q[0],'#a8bfce',1,[4,5]);line(a.q[2],'#a8bfce',1,[4,5]);line(a.q[1],'#fff',2.3);
+line(mode==='balance'?d.deposits:Array(d.days+1).fill(0),'#8b9eaf',1,[3,4]);
+for(let g=0;g<d.representatives.length;g++)line(a.paths[d.representatives[g]],palette[g],1.7);
+const idx=hover===null?d.highlight:hover.id;line(a.paths[idx],'#f6cf83',2.8);
+ctx.restore();
+const session=hover===null?end:Math.min(hover.day,end),value=a.paths[idx][session];
+document.getElementById('readout').textContent='Path '+d.ids[idx]+' · month '+(session/21).toFixed(1)+' · '+(value===null?'not yet funded':fmt(value))+' · return drawdown '+(d.dd[idx][session]*100).toFixed(1)+'%';
+document.getElementById('step').textContent='Session '+end;
+document.getElementById('timeline').value=end;
+canvas._plot={pad,pw,ph,low,high,w,h};
+}
+document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(v=>v.setAttribute('aria-pressed',v===b));paint()}));
+canvas.addEventListener('mousemove',e=>{const p=canvas._plot,r=canvas.getBoundingClientRect(),day=Math.max(0,Math.min(end,Math.round((e.clientX-r.left-p.pad.l)/p.pw*d.days))),target=p.high-(e.clientY-r.top-p.pad.t)/p.ph*(p.high-p.low);let best=0,delta=Infinity;data().paths.forEach((a,i)=>{if(a[day]!==null&&Math.abs(a[day]-target)<delta){delta=Math.abs(a[day]-target);best=i}});hover={day,id:best};paint()});
+canvas.addEventListener('mouseleave',()=>{hover=null;paint()});
+document.getElementById('timeline').max=d.days;document.getElementById('timeline').addEventListener('input',e=>{playing=false;end=+e.target.value;document.getElementById('play').textContent='Animate paths';paint()});
+document.getElementById('reset').addEventListener('click',()=>{playing=false;end=0;hover=null;document.getElementById('play').textContent='Animate paths';paint()});
+function tick(time){if(!playing)return;if(time-last>35){end=Math.min(d.days,end+Math.max(1,Math.round(d.days/220)));last=time;paint()}if(end<d.days)requestAnimationFrame(tick);else{playing=false;document.getElementById('play').textContent='Animate paths'}}
+document.getElementById('play').addEventListener('click',()=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){end=d.days;paint();return}playing=!playing;if(playing){hover=null;end=0;last=0;requestAnimationFrame(tick)}document.getElementById('play').textContent=playing?'Pause':'Animate paths'});
+window.addEventListener('resize',paint);paint();
+</script></body></html>

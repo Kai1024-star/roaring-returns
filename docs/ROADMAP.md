@@ -66,3 +66,12 @@ Do not select the winning historical band or target from evaluation results.
 This version has no tax model, expected-return forecast, end-to-end inferential
 confidence claim, or prospective trading record. Fewer sales alone do not
 establish tax savings.
+# v0.5 multi-asset scenario workspace
+
+Completed: immutable 13-ETF real-data snapshot; daily joint-block and GBM
+ensembles; visible path IDs, actual shape-group representatives and rounded
+model-internal shares; constrained minimum variance and deterministic full-window
+CVaR with matched feasible controls; observed-market charts, raw/model correlation
+audits, and estimation-window stability. The new default workspace preserves the
+prior budget and execution research. Prospective probability calibration, a
+return-prediction model and independent-provider validation remain future work.
