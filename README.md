@@ -128,6 +128,9 @@ should contain the downloader and synthetic fixtures, not someone else's data.
 - `results/`: published aggregate reports, tables, figures, and hash manifests.
 - `reports/runs/`: local full outputs, including detailed ledgers (Git-ignored).
 - `scripts/publish_results.py`: reproducible aggregate-only export.
+- `scripts/verify_cashflow_bounds.py`: original static-mechanism check, including
+  2,001 LP comparisons across two to six assets; run it with Python after installing
+  the validation extra.
 - `.github/workflows/tests.yml`: offline test matrix on Python 3.11 and 3.12.
 - `notebooks/01_explore.ipynb`: read and visualize generated results.
 - `docs/RESEARCH_PROTOCOL.md`: frozen assumptions and review record.
