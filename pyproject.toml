@@ -4,13 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "roaring-returns"
-version = "0.1.0"
+version = "0.2.0"
 description = "Cash-flow-aware portfolio rebalancing research"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26", "pandas>=2.2", "requests>=2.31", "matplotlib>=3.8"]
 
 [project.optional-dependencies]
 validation = ["scipy>=1.11"]
+research = ["scipy>=1.13", "cvxpy>=1.6,<2", "clarabel>=0.9,<1"]
+demo = ["scipy>=1.13", "cvxpy>=1.6,<2", "clarabel>=0.9,<1", "streamlit>=1.57,<2", "altair>=5,<7"]
 notebook = ["jupyterlab>=4"]
 
 [project.scripts]

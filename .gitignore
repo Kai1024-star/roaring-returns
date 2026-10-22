@@ -1,4 +1,5 @@
 .venv/
+.venv-v2/
 __pycache__/
 *.pyc
 *.egg-info/
@@ -11,3 +12,6 @@ build/
 dist/
 *.whl
 *.zip
+literature/papers/*.pdf
+reports/v2/
+.streamlit/secrets.toml

@@ -1,0 +1,48 @@
+{
+  "scope": "Read-only source inspection. No third-party experiments executed or reproduced. Code was not copied into this repository.",
+  "revision_kind": "Git tree SHA",
+  "files": [
+    {
+      "repository": "cvxgrp/markowitz-reference",
+      "revision": "db09a5c9e36c5002e616517f1884a22756c2db20",
+      "path": "experiments/markowitz.py",
+      "url": "https://raw.githubusercontent.com/cvxgrp/markowitz-reference/db09a5c9e36c5002e616517f1884a22756c2db20/experiments/markowitz.py",
+      "sha256": "adad0da1d10a1e025e9aee8239a617102118207197bc361dd3d9d3599f507bc2"
+    },
+    {
+      "repository": "cvxgrp/markowitz-reference",
+      "revision": "db09a5c9e36c5002e616517f1884a22756c2db20",
+      "path": "experiments/backtest.py",
+      "url": "https://raw.githubusercontent.com/cvxgrp/markowitz-reference/db09a5c9e36c5002e616517f1884a22756c2db20/experiments/backtest.py",
+      "sha256": "0f574b105fdb9c4b7d35536c85c880b0c3dacb83c8d3079eeeaf3cff84518360"
+    },
+    {
+      "repository": "JonasOhn/trainable-ot-dro",
+      "revision": "6e8d18f023f4f2e920af22dc1ef32b292dbb9631",
+      "path": "src/trainable_ot_dro/bilevel_optimization.py",
+      "url": "https://raw.githubusercontent.com/JonasOhn/trainable-ot-dro/6e8d18f023f4f2e920af22dc1ef32b292dbb9631/src/trainable_ot_dro/bilevel_optimization.py",
+      "sha256": "395da34e8ee98413a0c6759cbb358772597920c223c3c26a52ebfa65381d2359"
+    },
+    {
+      "repository": "JonasOhn/trainable-ot-dro",
+      "revision": "6e8d18f023f4f2e920af22dc1ef32b292dbb9631",
+      "path": "examples/portfolioopt_gaussian.py",
+      "url": "https://raw.githubusercontent.com/JonasOhn/trainable-ot-dro/6e8d18f023f4f2e920af22dc1ef32b292dbb9631/examples/portfolioopt_gaussian.py",
+      "sha256": "3d3951bd15a0f9980672cf797c2aa742aba8daeccd84d516ac1a8e8ea7588100"
+    },
+    {
+      "repository": "Iyengar-Lab/E2E-DRO",
+      "revision": "b5e299ad7748468bc39e3e711eceee809143c648",
+      "path": "e2edro/e2edro.py",
+      "url": "https://raw.githubusercontent.com/Iyengar-Lab/E2E-DRO/b5e299ad7748468bc39e3e711eceee809143c648/e2edro/e2edro.py",
+      "sha256": "a9514918cab46b5fdfe3883923333aca108e7f903975f30d9ddb86bfb2cf09bc"
+    },
+    {
+      "repository": "Iyengar-Lab/E2E-DRO",
+      "revision": "b5e299ad7748468bc39e3e711eceee809143c648",
+      "path": "e2edro/DataLoad.py",
+      "url": "https://raw.githubusercontent.com/Iyengar-Lab/E2E-DRO/b5e299ad7748468bc39e3e711eceee809143c648/e2edro/DataLoad.py",
+      "sha256": "75c3421a2c11cc4c7fd7373031599262ae0eccc16cc189597a032b0cf6a61bb4"
+    }
+  ]
+}

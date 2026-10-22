@@ -1,0 +1,7 @@
+{
+  "created_utc": "2026-10-22T17:27:58.192971+00:00",
+  "note": "Post-run reporting update only: explicit negative ML findings, material-sale reporting threshold, solver counts and rendered figure. Numerical paths, summary and monthly outcomes were not altered.",
+  "renderer_sha256": "2ded48046847b8444f0636802932ce51e0e494d002fafcaf351356cf6b992fea",
+  "script_sha256": "34becabb368c7f94269c88e9f51a228f04355df343e1a4ec5abe7cb718b0134a",
+  "sale_count_threshold_fraction_signal_wealth": 1e-06
+}

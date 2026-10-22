@@ -1,0 +1,13 @@
+{
+  "README.md": "4975ed85f58a230d04d7e0ba868dc5218fdeace2a76d9e04776f666eb1ca5482",
+  "REPORT.md": "e13616ff8bf925c57a6066417dec0f2963ef170501e8e00bea514b4d2469e18e",
+  "manifest.json": "68afbe18261e81bc654956f8dcc77ee37a7454e57bb0a9c25ba760ca9156d413",
+  "monthly_curves.csv": "a4b8468ac013291b72c4c49c56cf08f995165c20d947ada743ff659cbdc5769b",
+  "monthly_metrics.csv": "c42b1ca976389c533138c6bfdd63de8dc4423d6bde3eb7f71ad07750a38702fa",
+  "paired_intervals.csv": "5ee5a6a80af6ba57972ed6f2e06ecc75fd8b00ae9381113c272a5f04b4ecfe4c",
+  "presentation_manifest.json": "b73aa7124e2a7d30f5a8954ea5e04cd97b4686e9049d5fd50ff256d16e362cf0",
+  "protocol.json": "a503eeb2492b945e7486c4b0efabf3b1bb7ea1ba930179ec9a91fa8996813810",
+  "risk_diagnostics.csv": "e879cb6d26fd62daddf8aaf9b352f1774fe6c3eded1663ea2693d0980a6d1d8a",
+  "summary.csv": "75dc2c28ccd6e48a00173e42feff225f2c5d9c5a2d68928b2190ca6a094e029e",
+  "tradeoffs.png": "fc842671afc7efddcb8b10638b0f3b80cefa906912c2b9eeba8d15daf7eaf25e"
+}

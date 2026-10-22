@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "run_id": "20261022T172017613668Z_d52c81c3",
+  "created_utc": "2026-10-22T17:20:17.613668+00:00",
+  "research_status": "exploratory_retrospective_all_historical_periods_previously_inspected",
+  "protocol_sha256": "d52c81c366ae19163ec3b2cc39413ac95ba7ad81e438ab2b8ab7291c587cb184",
+  "source_hashes": {
+    "src/roaring_returns/__init__.py": "2248fe44e51f854f93525f72788c2b542cb58e05dd63fa4dbdc9f03a0b130ce7",
+    "src/roaring_returns/__main__.py": "476a616b779617c9363e8c5f78e45788b19d50676cf9d46effcfd3580c82d42a",
+    "src/roaring_returns/data.py": "c89333e3e49ef6d4a96912bf25400a108e3b2312b7c51279bc9af6c7536cb2d1",
+    "src/roaring_returns/demo.py": "c9d1fd97988d5eff35c108e7176d590d3d3c28d2f2e37eb21fd5e6907eb8d670",
+    "src/roaring_returns/engine.py": "46943259afe95b523671425287c3fbe0a32b7b8c4ca94f1b87bc57acc703b79d",
+    "src/roaring_returns/execution_research.py": "2d2d9f00be2b722a7e5e5c8d96f011c671a72d15731d2e0d0ed116f4389d1b14",
+    "src/roaring_returns/experiments.py": "daad0075a543b4a77fae12b71968ecc4582a97b6288268c89f1bd20ababbbdd2",
+    "src/roaring_returns/optimization.py": "2ec186c3484bcff88a44ca1abe8b2c468ac02980cfd4279f58313aba423ca548",
+    "src/roaring_returns/policies.py": "43ecc3ff3a3079954551944996333cfd946358d39a87214a9d7a7b7da6a26686",
+    "src/roaring_returns/research_runner.py": "0d4273109b7a5c2d50c3488a1fed712298e9070d83dac5b83538463893a98b82",
+    "src/roaring_returns/risk.py": "ee8df44bc53fc98ac2b9ca3c8aac0e4bfc40f5de383143f13e1720c8e4a0e3bf",
+    "src/roaring_returns/synthetic.py": "c49630f7615e0c76573f5e89c8d30d0cbc04feedd215be7d42c8ac83f1711e13"
+  },
+  "numerical_source_hashes": {
+    "src/roaring_returns/data.py": "c89333e3e49ef6d4a96912bf25400a108e3b2312b7c51279bc9af6c7536cb2d1",
+    "src/roaring_returns/policies.py": "43ecc3ff3a3079954551944996333cfd946358d39a87214a9d7a7b7da6a26686",
+    "src/roaring_returns/engine.py": "46943259afe95b523671425287c3fbe0a32b7b8c4ca94f1b87bc57acc703b79d",
+    "src/roaring_returns/risk.py": "ee8df44bc53fc98ac2b9ca3c8aac0e4bfc40f5de383143f13e1720c8e4a0e3bf",
+    "src/roaring_returns/optimization.py": "2ec186c3484bcff88a44ca1abe8b2c468ac02980cfd4279f58313aba423ca548",
+    "src/roaring_returns/execution_research.py": "2d2d9f00be2b722a7e5e5c8d96f011c671a72d15731d2e0d0ed116f4389d1b14",
+    "src/roaring_returns/synthetic.py": "c49630f7615e0c76573f5e89c8d30d0cbc04feedd215be7d42c8ac83f1711e13"
+  },
+  "data": {
+    "source": "SYNTHETIC regime-switching Student-t paths; not market data",
+    "data_sha256": "b4caa0f00f6c08620d6e277df6d2c8fc49cb5a5b857977aa68e7c4d7e31eb4f2",
+    "seed": 20261022
+  },
+  "windows": {
+    "2005-2014": [
+      "2005-01-01",
+      "2014-12-31"
+    ],
+    "2015-2019": [
+      "2015-01-01",
+      "2019-12-31"
+    ],
+    "2020-2025": [
+      "2020-01-01",
+      "2025-12-31"
+    ]
+  },
+  "configurations": 36,
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.4.2",
+    "pandas": "3.0.2",
+    "cvxpy": "1.9.3",
+    "clarabel": "0.11.1"
+  },
+  "failures": [],
+  "disclosure": "Causal decisions on already-inspected history; no alpha or prospective holdout claim."
+}

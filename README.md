@@ -2,10 +2,49 @@
 
 [![Offline research checks](https://github.com/Kai1024-star/roaring-returns/actions/workflows/tests.yml/badge.svg)](https://github.com/Kai1024-star/roaring-returns/actions/workflows/tests.yml)
 
-A Python personal research project on contribution-aware portfolio rebalancing.
+A Python personal research project on contribution-aware portfolio rebalancing
+and convex optimization under execution risk.
 The research question is how allocation drift and required selling change with
 monthly contributions relative to wealth. The focus is portfolio implementation: allocating new cash, measuring drift,
 and quantifying unavoidable sales under explicit assumptions.
+
+## Interactive execution-risk demo (v0.2)
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -e '.[demo,validation]'
+.venv/bin/python -m roaring_returns demo
+```
+
+Open **http://127.0.0.1:8501**. The synthetic market works offline without keys.
+Inspect frozen dollar orders, change next-session prices, and compare realized
+drift, selling and fees. A causal ridge volatility model is compared with EWMA;
+it forecasts execution uncertainty, not alpha. CVXPY/Clarabel solve cost-aware
+and tail-risk-budget allocation programs. OSQP is a disclosed tie-break retry.
+
+![Execution-risk demo](docs/demo/execution_lab.jpg)
+
+- [v0.2 methods, assumptions and code provenance](docs/EXECUTION_RISK_V2.md)
+- [ETF execution-risk findings](results/execution_v2/README.md) and
+  [synthetic mechanism results](results/execution_v2_synthetic/REPORT.md)
+- [Paper-to-implementation boundaries](docs/paper_implementation_map.csv)
+
+The new study uses 12 methods × 3 historical windows, with common 2bp costs.
+It is exploratory: the history was already inspected. Finite-scenario CVaR
+is not a market coverage guarantee, and ML is not assumed to improve outcomes.
+The original five-rule v0.1 results below remain separate and unchanged.
+
+In 2020–2025, signal minimum sale finished outside the band in 10/72 months;
+the EWMA risk-budget planner did so in 1/72, with annual sales increasing from
+0.77% to 1.17% of mean wealth. The analytic buffer also achieved 1/72.
+Ridge volatility QLIKE was worse than EWMA in all three ETF windows, so the
+project preserves a negative ML result rather than claims learned superiority.
+
+Reproduce the new study with `python -m roaring_returns research --source synthetic`,
+or `--source yahoo` after fetching the cached snapshot. The tested package
+versions are in `constraints-demo.txt`.
+Runs and public exports refuse to overwrite existing folders. Public numeric
+artifacts can be checked offline with `python scripts/check_v2_exports.py`.
 
 ![Historical comparison](results/period_comparison.png)
 

@@ -69,3 +69,68 @@ It also discloses duplicate 10pp outcomes and post-generation prose/link edits.
 A new contribution map uses the primary common-signal RMS metric; the original
 daily band-exposure maps remain clearly secondary. No policy, target, band,
 source numerical module, or data snapshot changed in this presentation update.
+
+## v0.2 execution-risk extension, 2026-10-22
+
+The user authorized a personal Python research upgrade and a showcase demo.
+Codex implemented the new modules and inspected author source files; Claude
+reviewed relevant full-paper sections, the implementation and numerical probes.
+This is AI-assisted engineering review, not human peer review or a reproduction
+of the cited papers. Six pinned author-source files were inspected read-only;
+none of the external training/backtest pipelines were executed.
+
+The first tracking-QP study greatly reduced drift by selling far more. Its
+forecast variants were nearly identical. In response, an analytic lag buffer
+and a separate risk-budget minimum-sale objective were added as explicit
+comparators. This was exploratory method development after seeing the first
+QP outcomes, not a prospective preregistration. No historical parameter grid
+search was performed. Existing 2005–2025 outcomes were already known.
+
+Claude identified the following problems, which were corrected or disclosed:
+
+1. A soft tracking penalty does not recover a static minimum-sale objective.
+   We retain the tracking QP as a separate ablation and test the new sales
+   program's hard-zero-risk/zero-cost/zero-shock limit.
+2. Under frozen dollar fills, next-day returns act on original holdings. The
+   analytic Jacobian uses H/S; it does not substitute post-trade target weights.
+3. Subsampling 64 historical observations and mixing designed shocks created
+   avoidable scenario sensitivity. Final runs use all up to 252 causal,
+   individually filtered historical residuals. Designed stress is separate.
+4. Ridge clipping, mature label dates, a common warm-up, tail activity,
+   fill adjustments and solver statuses are explicitly recorded. The first
+   ETF account is initialized 2005-12-30, yielding 108 monthly fills; the
+   requested-window label is not a full January-2005 start.
+5. Tight tie-break constraints exposed numerical failures. The same QP retries
+   through OSQP, then preserves a verified first-stage LP solution if necessary.
+   ETF runs have 28 retries and zero LP-only months; synthetic runs have 22
+   retries and two LP-only months, whose nearest-target tie-break is incomplete.
+6. The tracking tie-break initially spent its numerical tolerance on cent-level
+   sales, inflating selling counts. Zero-sale optimal faces are now strictly
+   buy-only; nonzero faces cap sales/slack separately. Exact buy-only funding,
+   independent HiGHS CVaR epigraph checks and the Jensen mechanism are tested.
+
+The final numerical code/configuration is identical across the 36 ETF and 36
+synthetic configurations; the data sources differ. Forty local tests passed,
+including a browser-independent Streamlit integration check, future-data
+poisoning, fees/flow neutrality, old-ledger equivalence at the same configuration,
+LP/QP cross-checks and explicit tie-break-failure disclosure. Browser checks
+also verified that future shock controls change outcomes without changing
+frozen order IDs. CI installs the solver/demo extras so these checks are enabled.
+
+The public result interpretation preserves a negative ML finding: ridge QLIKE
+is worse than EWMA in all three ETF periods. Risk-budget execution reduces
+observed violations while generally selling more; the analytic buffer is a
+strong simple comparator. Conditional monthly block intervals are not an
+untouched holdout, model-refit bootstrap, or a claim of superiority. Papers,
+raw provider data, original author code and private daily ledgers are excluded
+from publication; original code, provenance and derived aggregates are included.
+
+After the final numerical runs, presentation-only updates added explicit model
+scores and solver counts to REPORT, and a uniform material-sale reporting
+threshold of 1e-6 of signal wealth. The original summary's legacy >1e-7 USD
+count remains available. This removes residual tracking-QP rounding effects
+from displayed selling frequency without modifying any trade or path. A separate
+presentation manifest records the renderer; numerical source and outcome hashes
+are still checked. ETF and synthetic first windows have 108 and 120 monthly
+fills respectively because their available prehistory differs; they are separate
+mechanism studies, not paired market observations.

@@ -1,0 +1,10 @@
+period,model,score,mean_qlike,observations,fallback_months,ridge_training_samples_mean
+2005-2014,historical,monthly execution-session variance QLIKE,-8.072091317800473,108,0,0.0
+2005-2014,ewma,monthly execution-session variance QLIKE,-8.16607004891303,108,0,0.0
+2005-2014,ridge_vol,monthly execution-session variance QLIKE,-7.674784013767219,108,0,486.01851851851853
+2015-2019,historical,monthly execution-session variance QLIKE,-8.710216962754542,60,0,0.0
+2015-2019,ewma,monthly execution-session variance QLIKE,-8.813426240306386,60,0,0.0
+2015-2019,ridge_vol,monthly execution-session variance QLIKE,-8.50402103513741,60,0,504.0
+2020-2025,historical,monthly execution-session variance QLIKE,-8.224645384486411,72,0,0.0
+2020-2025,ewma,monthly execution-session variance QLIKE,-8.296228947706785,72,0,0.0
+2020-2025,ridge_vol,monthly execution-session variance QLIKE,-7.988740795900579,72,0,504.0

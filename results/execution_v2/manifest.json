@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "run_id": "20261022T172016456895Z_d52c81c3",
+  "created_utc": "2026-10-22T17:20:16.456895+00:00",
+  "research_status": "exploratory_retrospective_all_historical_periods_previously_inspected",
+  "protocol_sha256": "d52c81c366ae19163ec3b2cc39413ac95ba7ad81e438ab2b8ab7291c587cb184",
+  "source_hashes": {
+    "src/roaring_returns/__init__.py": "2248fe44e51f854f93525f72788c2b542cb58e05dd63fa4dbdc9f03a0b130ce7",
+    "src/roaring_returns/__main__.py": "476a616b779617c9363e8c5f78e45788b19d50676cf9d46effcfd3580c82d42a",
+    "src/roaring_returns/data.py": "c89333e3e49ef6d4a96912bf25400a108e3b2312b7c51279bc9af6c7536cb2d1",
+    "src/roaring_returns/demo.py": "c9d1fd97988d5eff35c108e7176d590d3d3c28d2f2e37eb21fd5e6907eb8d670",
+    "src/roaring_returns/engine.py": "46943259afe95b523671425287c3fbe0a32b7b8c4ca94f1b87bc57acc703b79d",
+    "src/roaring_returns/execution_research.py": "2d2d9f00be2b722a7e5e5c8d96f011c671a72d15731d2e0d0ed116f4389d1b14",
+    "src/roaring_returns/experiments.py": "daad0075a543b4a77fae12b71968ecc4582a97b6288268c89f1bd20ababbbdd2",
+    "src/roaring_returns/optimization.py": "2ec186c3484bcff88a44ca1abe8b2c468ac02980cfd4279f58313aba423ca548",
+    "src/roaring_returns/policies.py": "43ecc3ff3a3079954551944996333cfd946358d39a87214a9d7a7b7da6a26686",
+    "src/roaring_returns/research_runner.py": "0d4273109b7a5c2d50c3488a1fed712298e9070d83dac5b83538463893a98b82",
+    "src/roaring_returns/risk.py": "ee8df44bc53fc98ac2b9ca3c8aac0e4bfc40f5de383143f13e1720c8e4a0e3bf",
+    "src/roaring_returns/synthetic.py": "c49630f7615e0c76573f5e89c8d30d0cbc04feedd215be7d42c8ac83f1711e13"
+  },
+  "numerical_source_hashes": {
+    "src/roaring_returns/data.py": "c89333e3e49ef6d4a96912bf25400a108e3b2312b7c51279bc9af6c7536cb2d1",
+    "src/roaring_returns/policies.py": "43ecc3ff3a3079954551944996333cfd946358d39a87214a9d7a7b7da6a26686",
+    "src/roaring_returns/engine.py": "46943259afe95b523671425287c3fbe0a32b7b8c4ca94f1b87bc57acc703b79d",
+    "src/roaring_returns/risk.py": "ee8df44bc53fc98ac2b9ca3c8aac0e4bfc40f5de383143f13e1720c8e4a0e3bf",
+    "src/roaring_returns/optimization.py": "2ec186c3484bcff88a44ca1abe8b2c468ac02980cfd4279f58313aba423ca548",
+    "src/roaring_returns/execution_research.py": "2d2d9f00be2b722a7e5e5c8d96f011c671a72d15731d2e0d0ed116f4389d1b14",
+    "src/roaring_returns/synthetic.py": "c49630f7615e0c76573f5e89c8d30d0cbc04feedd215be7d42c8ac83f1711e13"
+  },
+  "data": {
+    "source": "cached Yahoo adjusted-close return-unit proxy",
+    "data_sha256": "49269e7636729f91a288d37d5fa7dbe9bbcf874e1eddefc381cf3fd64fd6dd03",
+    "source_manifest": {
+      "source": "Yahoo Finance public chart endpoint",
+      "schema_version": 1,
+      "purpose": "private research; no raw-data redistribution assumed",
+      "price_convention": "vendor adjusted-close total-return proxy; not historical executable share prices",
+      "distribution_convention": "implicit reinvestment in original asset; never added as separate cash",
+      "pay_dates_available": false,
+      "independent_provider_validated": false,
+      "internal_return_audit": {
+        "QQQ": {
+          "max_proxy_vs_reconstructed_difference": 7.066263432520259e-05,
+          "max_vendor_backadjustment_convention_difference": 1.429853745404941e-06,
+          "max_non_distribution_difference": 1.429853745404941e-06,
+          "note": "same-vendor internal consistency only; conventions differ on distribution dates"
+        },
+        "GLD": {
+          "max_proxy_vs_reconstructed_difference": 0.0,
+          "max_vendor_backadjustment_convention_difference": 0.0,
+          "max_non_distribution_difference": 0.0,
+          "note": "same-vendor internal consistency only; conventions differ on distribution dates"
+        },
+        "IEF": {
+          "max_proxy_vs_reconstructed_difference": 4.705165441942771e-05,
+          "max_vendor_backadjustment_convention_difference": 1.7785348233045895e-06,
+          "max_non_distribution_difference": 1.7785348233045895e-06,
+          "note": "same-vendor internal consistency only; conventions differ on distribution dates"
+        }
+      },
+      "files": [
+        {
+          "symbol": "QQQ",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1101859200&period2=1767225600&interval=1d&events=div%2Csplits",
+          "file": "data/raw/QQQ.yahoo.json",
+          "sha256": "3ee26974f21ebf234befb7231c75fecb893c4807a47ab061c4e7a4439654306a",
+          "fetched_at_utc": "2026-10-22T06:13:06.210248+00:00",
+          "first_date": "2004-12-01",
+          "last_date": "2025-12-31",
+          "rows": 5305,
+          "dividend_events": 86,
+          "split_events": 0
+        },
+        {
+          "symbol": "GLD",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1101859200&period2=1767225600&interval=1d&events=div%2Csplits",
+          "file": "data/raw/GLD.yahoo.json",
+          "sha256": "2fc6931ee02784e29a0213af2a6da3d5ca3d5472d410fafcc13382cfb1ab7071",
+          "fetched_at_utc": "2026-10-22T06:13:06.461152+00:00",
+          "first_date": "2004-12-01",
+          "last_date": "2025-12-31",
+          "rows": 5305,
+          "dividend_events": 0,
+          "split_events": 0
+        },
+        {
+          "symbol": "IEF",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/IEF?period1=1101859200&period2=1767225600&interval=1d&events=div%2Csplits",
+          "file": "data/raw/IEF.yahoo.json",
+          "sha256": "844d79d8e65928528695bc6dccb8cb11d7b704349fc712af560bacb515981dbf",
+          "fetched_at_utc": "2026-10-22T06:13:06.762082+00:00",
+          "first_date": "2004-12-01",
+          "last_date": "2025-12-31",
+          "rows": 5305,
+          "dividend_events": 254,
+          "split_events": 0
+        }
+      ],
+      "processed_file": "data/processed/total_return_indices.csv",
+      "processed_sha256": "49269e7636729f91a288d37d5fa7dbe9bbcf874e1eddefc381cf3fd64fd6dd03",
+      "common_rows": 5284,
+      "max_absolute_daily_return": {
+        "QQQ": 0.12164743762080632,
+        "GLD": 0.11290530102327678,
+        "IEF": 0.03426226169930402
+      },
+      "software": {
+        "python": "3.12.10",
+        "pandas": "3.0.2",
+        "numpy": "2.4.2"
+      }
+    }
+  },
+  "windows": {
+    "2005-2014": [
+      "2005-01-01",
+      "2014-12-31"
+    ],
+    "2015-2019": [
+      "2015-01-01",
+      "2019-12-31"
+    ],
+    "2020-2025": [
+      "2020-01-01",
+      "2025-12-31"
+    ]
+  },
+  "configurations": 36,
+  "software": {
+    "python": "3.12.10",
+    "numpy": "2.4.2",
+    "pandas": "3.0.2",
+    "cvxpy": "1.9.3",
+    "clarabel": "0.11.1"
+  },
+  "failures": [],
+  "disclosure": "Causal decisions on already-inspected history; no alpha or prospective holdout claim."
+}
