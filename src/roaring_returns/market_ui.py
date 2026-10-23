@@ -8,11 +8,31 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 from .market_data import UNIVERSE, market_or_synthetic
-from .market_models import CORE, MODELS, calibrate, simulate, minimum_variance, feasible_reference, balanced_example, path_summary, scenario_groups, scenario_min_cvar
+from .market_models import CORE, MODELS, calibrate, simulate, minimum_variance, feasible_reference, balanced_example, path_summary, scenario_groups, scenario_min_cvar, one_month_scenarios, empirical_cvar
 from .planner import Budget
+from .market_presentation import comparison_rows
 
 ROOT=Path(__file__).resolve().parents[2]
-PALETTE=['#44b8ac','#6592ee','#a689dc','#daa963','#61acda','#d37b8d','#86b294','#afb1e0']
+PALETTE=['#67bfb2','#5187df','#956ad1','#d98150','#50a4c5','#c978a0','#d6ad49',
+         '#a6a7b7','#cf614c','#92b366','#6b9cbb','#7171ad','#a08758']
+FUND_COLORS=dict(zip(UNIVERSE,PALETTE))
+OBJECTIVES={
+    'Illustrative class mix':('Fixed class example','A preset stock / gold / bond mix. It may exceed your optimization caps.'),
+    'Constrained minimum variance':('Lower overall fluctuations','Minimize estimated variance while keeping your exposure constraints.'),
+    'Scenario downside optimizer':('Lower severe monthly losses','Minimize mean loss in the worst 5% of adjusted historical one-month windows.'),
+    'Feasible equal-weight control':('Simple constrained reference','Start with equal risky-fund weights and project onto the same constraints.')}
+OBJECTIVE_STYLE={
+    'Illustrative class mix':('Fixed example','#a9a0e3'),
+    'Constrained minimum variance':('Lower fluctuations','#67d1bf'),
+    'Scenario downside optimizer':('Monthly tail loss','#edb875'),
+    'Feasible equal-weight control':('Simple reference','#a4c0d3')}
+
+
+def _open_simulation(allocation):
+    # Callbacks run before widgets on the next rerun. Preserve all model settings.
+    st.session_state.market_allocation=allocation
+    st.session_state.market_view='Simulation'
+    st.session_state.market_focus='Portfolio'
 
 
 @st.cache_data(show_spinner=False)
@@ -85,7 +105,7 @@ def _historical(adjusted,quotes,meta,synthetic):
         plotted=data.pct_change(fill_method=None).iloc[1:]*100; title='Daily total-return proxy (%)'
     long=plotted.rename_axis('Date').reset_index().melt('Date',var_name='Fund',value_name='Value')
     st.altair_chart(alt.Chart(long).mark_line(strokeWidth=1.7).encode(x='Date:T',y=alt.Y('Value:Q',title=title,scale=alt.Scale(zero=False)),
-        color=alt.Color('Fund:N',scale=alt.Scale(range=PALETTE)),tooltip=['Date:T','Fund',alt.Tooltip('Value:Q',format=',.2f')]).properties(height=350).interactive(),width='stretch')
+        color=alt.Color('Fund:N',scale=alt.Scale(domain=list(FUND_COLORS),range=list(FUND_COLORS.values()))),tooltip=['Date:T','Fund',alt.Tooltip('Value:Q',format=',.2f')]).properties(height=350).interactive(),width='stretch')
     st.caption('Different dollar prices are not comparable returns. Total-return indices include the vendor’s reinvested-distribution convention. USO holds oil futures: roll yield, expenses and changing exposures make it different from spot crude. No futures contracts or leverage are traded here.')
     rows=[]
     for symbol in UNIVERSE:
@@ -133,7 +153,7 @@ def render():
             st.caption('Dollar inputs are session-only. Cash is an assumption, not a quoted deposit rate. Retained mean controls log growth over cash; 0% means zero expected excess log return, not zero arithmetic excess return.')
             st.form_submit_button('Apply settings',type='primary',width='stretch')
     st.caption(f'Model budget: {_dollars(initial)} investable now + {_dollars(monthly)}/month · {months} months · {paths:,} paths · {years}y requested calibration'.replace('$',r'\$'))
-    with st.expander('Asset universe and allocation constraints',expanded=page=='Optimize'):
+    with st.expander('Asset universe and allocation constraints',expanded=False):
         advanced=st.checkbox('Enable oil futures, silver, Nasdaq-100 and small-cap funds',key='market_advanced')
         allowed=list(UNIVERSE)[1:] if advanced else [s for s in CORE if s!='BIL']
         chosen=st.multiselect('Risky funds to include',allowed,default=allowed,key='market_universe_'+str(advanced))
@@ -160,12 +180,15 @@ def render():
     candidates={'Illustrative class mix':balanced_example(symbols,cash),
                 'Constrained minimum variance':optimized,'Scenario downside optimizer':tail_weights,
                 'Feasible equal-weight control':reference}
-    allocation=st.selectbox('Allocation to explore',list(candidates),help='The optimizer and feasible control obey identical constraints. The illustrative class mix is a fixed class-weight example.')
+    allocation=st.selectbox('Allocation to explore',list(candidates),key='market_allocation',
+        format_func=lambda name:OBJECTIVES[name][0],help='The optimizer and feasible control obey identical constraints. The illustrative class mix is a fixed class-weight example.')
     weights=candidates[allocation]
+    budget=Budget(savings=initial,emergency_reserve=0,near_term=0,monthly=monthly,months=months,goal_today=0)
     if page=='Real markets':
         _historical(adjusted,quotes,meta,synthetic);return
     if page=='Optimize':
-        _optimization(adjusted,cal,candidates,cash,equity,asset_cap,commodity_cap,tail_audit);return
+        _optimization(adjusted,cal,candidates,cash,equity,asset_cap,commodity_cap,tail_audit,
+            budget,allocation,model,paths,block,premium,cash_rate,cost);return
     if page=='Model audit':
         _audit(cal,meta,synthetic,premium,cash_rate);return
     c=st.columns([2,1])
@@ -173,9 +196,10 @@ def render():
     if c[1].button('Generate another random batch'):
         st.session_state.market_seed=st.session_state.get('market_seed',20261022)+1
     seed=st.session_state.get('market_seed',20261022)
-    focus=st.selectbox('Simulate the portfolio or inspect one fund',['Portfolio']+list(symbols),format_func=lambda x:x if x=='Portfolio' else x+' · '+UNIVERSE[x][0])
+    if st.session_state.get('market_focus','Portfolio') not in ['Portfolio']+list(symbols):
+        st.session_state.market_focus='Portfolio'
+    focus=st.selectbox('Simulate the portfolio or inspect one fund',['Portfolio']+list(symbols),key='market_focus',format_func=lambda x:x if x=='Portfolio' else x+' · '+UNIVERSE[x][0])
     actual_weights=weights if focus=='Portfolio' else np.eye(len(symbols))[symbols.index(focus)]
-    budget=Budget(savings=initial,emergency_reserve=0,near_term=0,monthly=monthly,months=months,goal_today=0)
     with st.spinner('Simulating correlated daily returns, cash flows and fees…'):
         result=_run(cal,budget,actual_weights,model,paths,seed,block,premium,cash_rate,cost)
     summary=path_summary(result); c=st.columns(4)
@@ -225,50 +249,97 @@ def render():
     st.caption('Educational research prototype · nominal USD · fractional holdings · monthly net rebalancing · no taxes, intraday liquidity, broker fills or investment guarantee. More curves do not mean more independent data.')
 
 
-def _optimization(prices,cal,candidates,cash,equity,cap,commodity,tail_audit):
-    st.subheader('Allocate across real market exposures')
-    frame=pd.DataFrame({'Fund':cal.symbols,**{n:a for n,a in candidates.items()}})
-    long=frame.melt('Fund',var_name='Allocation',value_name='Weight')
-    st.altair_chart(alt.Chart(long).mark_bar().encode(x='Fund:N',xOffset='Allocation:N',y=alt.Y('Weight:Q',axis=alt.Axis(format='%')),
-        color=alt.Color('Allocation:N',scale=alt.Scale(range=PALETTE)),tooltip=['Fund','Allocation',alt.Tooltip('Weight:Q',format='.1%')]).properties(height=260),width='stretch')
-    st.dataframe(frame,hide_index=True,width='stretch',column_config={n:st.column_config.NumberColumn(format='percent') for n in candidates})
+def _optimization(prices,cal,candidates,cash,equity,cap,commodity,tail_audit,
+                  budget,selected,model,paths,block,premium,cash_rate,cost):
+    st.subheader('What changes when you change the objective?')
+    st.write('Compare four allocations on the same market paths and deposits. Choose an objective above, inspect the trade-offs, then open its full simulation.')
+    seed=st.session_state.get('market_seed',20261022)
+    with st.spinner('Comparing the same market shocks across four allocations…'):
+        results={name:_run(cal,budget,w,model,paths,seed,block,premium,cash_rate,cost)
+                 for name,w in candidates.items()}
+    rows=comparison_rows(cal,candidates,results,one_month_scenarios(cal,premium,cash_rate),budget.initial)
+    for row in rows:
+        row['title'],row['description']=OBJECTIVES[row['name']]
+        row['short'],row['color']=OBJECTIVE_STYLE[row['name']]
+    payload=dict(rows=rows,selected=selected,symbols=cal.symbols,
+        exposures=[UNIVERSE[s][0] for s in cal.symbols],colors=[FUND_COLORS[s] for s in cal.symbols],
+        initial=budget.initial,monthly=budget.monthly,months=budget.months,paths=paths,
+        deposits=float(next(iter(results.values())).deposits[-1]),model=model,seed=seed,
+        first=cal.first_date,last=cal.last_date,windows=tail_audit['scenario_count'])
+    raw=json.dumps(payload,allow_nan=False,separators=(',',':')).replace('<','\\u003c')
+    template=(Path(__file__).parent/'assets/allocation_board.html').read_text()
+    st.iframe(template.replace('__PAYLOAD__',raw),height='content',tab_index=0)
+    st.button('Simulate this allocation',type='primary',width='stretch',
+        on_click=_open_simulation,args=(selected,))
+    st.caption('Keeps this budget, allocation, random seed, generator and assumptions. The action opens a simulation; it does not place orders.')
+    with st.expander('Cross-check with the other path generator'):
+        st.caption('Both generators use the same historical calibration. Switching models tests an assumption, not an independent holdout.')
+        if st.button('Compare both generators',key='optimization_cross_model'):
+            cross=[]
+            with st.spinner('Checking outcomes under both assumptions…'):
+                for generator in MODELS:
+                    for label in dict.fromkeys([selected,'Feasible equal-weight control']):
+                        r=_run(cal,budget,candidates[label],generator,paths,seed,block,premium,cash_rate,cost)
+                        stat=path_summary(r)
+                        cross.append({'Generator':generator,'Allocation':OBJECTIVES[label][0],
+                            'Median net P&L ($)':stat['median_net_pnl'],
+                            'P5 ending ($)':stat['ending_p05'],'P95 ending ($)':stat['ending_p95'],
+                            'P95 return drawdown':stat['p95_drawdown']})
+            st.dataframe(pd.DataFrame(cross),hide_index=True,width='stretch',column_config={
+                **{n:st.column_config.NumberColumn(format='$%.0f') for n in ['Median net P&L ($)','P5 ending ($)','P95 ending ($)']},
+                'P95 return drawdown':st.column_config.NumberColumn(format='percent')})
+    with st.expander('Research details · constraints, sensitivity and solver audit'):
+        _optimization_details(prices,cal,candidates,cash,equity,cap,commodity,tail_audit)
+
+
+def _optimization_details(prices,cal,candidates,cash,equity,cap,commodity,tail_audit):
     optimized=candidates['Constrained minimum variance']
     active=[]
     if abs(sum(w for s,w in zip(cal.symbols,optimized) if UNIVERSE[s][1]=='Equities')-equity)<1e-5:
         active.append('equity minimum')
     active += [s+' at fund cap' for s,w in zip(cal.symbols[1:],optimized[1:]) if abs(w-cap)<1e-5]
     active += [s+' at zero bound' for s,w in zip(cal.symbols[1:],optimized[1:]) if w<1e-6]
-    st.caption('Binding minimum-variance constraints: '+(', '.join(active) or 'cash equality only')+'.')
-    vols=[{'Allocation':n,'Estimated annual volatility':np.sqrt(a[1:]@cal.covariance@a[1:])} for n,a in candidates.items()]
-    st.dataframe(pd.DataFrame(vols),hide_index=True,width='stretch',column_config={'Estimated annual volatility':st.column_config.NumberColumn(format='percent')})
-    st.caption('The minimum-variance objective uses completed-week sample covariance, with only a minimal eigenvalue floor if needed for numerical conditioning. It does not mechanically reduce off-diagonal correlations. Cash is fixed and treated as deterministic. No expected return is maximized; the feasible control is the closest equal-risky-capital mix under the very same constraints.')
-    st.write(f"The scenario downside optimizer minimizes average loss in the worst 5% of all {tail_audit['scenario_count']:,} overlapping 21-session historical windows, shifted to the stated cash/log-growth assumptions. There is no random training-window selection. It considers many outcomes rather than betting on one representative line. These overlapping windows and the plotted simulations still rely on the same historical calibration; they are not independent evidence.")
-    with st.expander('Scenario optimizer audit'):
-        st.latex(r'\min_{w,\eta,u}\ \eta+\frac{1}{0.05N}\sum_s u_s,\quad u_s\ge -R_s^Tw-\eta,\ u_s\ge0')
-        st.json(tail_audit)
+    st.markdown('**Which limits shaped the minimum-variance allocation?**')
+    st.write(', '.join(active) or 'Cash equality only.')
+    st.caption('The minimum-variance objective uses completed-week sample covariance with a minimal eigenvalue floor if needed. Cash is deterministic. Expected return is not maximized.')
+    st.dataframe(pd.DataFrame({'Fund':cal.symbols,**{OBJECTIVES[n][0]:a for n,a in candidates.items()}}),
+        hide_index=True,width='stretch',column_config={OBJECTIVES[n][0]:st.column_config.NumberColumn(format='percent') for n in candidates})
     curve=[]
     for floor in np.linspace(0,min(.85,1-cash),13):
         try:
             a=minimum_variance(cal,cash,float(floor),cap,commodity)
             curve.append({'Minimum equity share':floor,'Estimated annual volatility':np.sqrt(a[1:]@cal.covariance@a[1:])})
         except ValueError:pass
-    st.markdown('**Equity exposure versus minimum estimated risk · cash held fixed**')
+    st.markdown('**What does requiring more stock exposure change?**')
     if curve:
-        st.altair_chart(alt.Chart(pd.DataFrame(curve)).mark_line(point=True,color='#258c99').encode(x=alt.X('Minimum equity share:Q',axis=alt.Axis(format='%')),y=alt.Y('Estimated annual volatility:Q',axis=alt.Axis(format='%')),tooltip=[alt.Tooltip('Minimum equity share:Q',format='.0%'),alt.Tooltip('Estimated annual volatility:Q',format='.1%')]).properties(height=220),width='stretch')
-    st.caption(f'{len(curve)}/13 exposure settings are feasible under the selected caps; infeasible points are not plotted. This is a constraint/risk curve, not a forecast return frontier.')
-    st.markdown('**Weight stability across estimation windows**')
+        frame=pd.DataFrame(curve)
+        base=alt.Chart(frame).encode(x=alt.X('Minimum equity share:Q',axis=alt.Axis(format='%'),title='Required minimum in stocks'),
+            y=alt.Y('Estimated annual volatility:Q',axis=alt.Axis(format='%')))
+        line=base.mark_line(point=True,color='#258c99').encode(tooltip=[alt.Tooltip('Minimum equity share:Q',format='.0%'),alt.Tooltip('Estimated annual volatility:Q',format='.1%')])
+        marker=alt.Chart(pd.DataFrame({'Current':[equity]})).mark_rule(color='#cb8d3a',strokeDash=[4,4]).encode(x='Current:Q')
+        st.altair_chart((line+marker).properties(height=220),width='stretch')
+    st.caption(f'{len(curve)}/13 settings feasible. Dashed line: your current equity minimum. Cash stays fixed. This is a constraint/risk curve, not a forecast-return frontier.')
     rows=[]
+    windows=[f'{y}y requested' for y in [3,5,10,20]]
     for years in [3,5,10,20]:
         fitted=calibrate(prices,cal.symbols,years=years)
         a=minimum_variance(fitted,cash,equity,cap,commodity)
-        rows.extend({'Window':f'{years}y requested','Fund':s,'Weight':float(w)} for s,w in zip(cal.symbols,a))
-    st.altair_chart(alt.Chart(pd.DataFrame(rows)).mark_bar().encode(x='Window:N',y=alt.Y('Weight:Q',axis=alt.Axis(format='%')),
-        color=alt.Color('Fund:N',scale=alt.Scale(range=PALETTE)),tooltip=['Window','Fund',alt.Tooltip('Weight:Q',format='.1%')]).properties(height=240),width='stretch')
-    st.caption('A 20-year request uses only available common history. These overlapping windows illustrate estimation sensitivity, not independent tests. A low estimated variance does not establish a suitable portfolio or bound a loss.')
-    with st.expander('Optimization formula and constraints'):
-        st.latex(r'\min_w\ w_{risk}^{T}\widehat\Sigma_{weekly}\,w_{risk}\quad\mathrm{s.t.}\quad\mathbf1^Tw=1,\ w\ge0')
-        st.json(dict(cash_fixed=cash,equity_minimum=equity,single_risky_cap=cap,commodity_cap=commodity,oil_cap=.1,
-                     covariance_observations=cal.weekly_observations,covariance_through=cal.weekly_last,eigenvalue_floor=cal.eigenvalue_floor,solver='Clarabel'))
+        rows.extend({'Window':f'{years}y requested','Fund':s,'Weight':float(w),
+            'Actual start':fitted.first_date,'Actual end':fitted.last_date} for s,w in zip(cal.symbols,a))
+    st.markdown('**Does a different historical window change the allocation?**')
+    st.altair_chart(alt.Chart(pd.DataFrame(rows)).mark_bar(size=60).encode(
+        x=alt.X('Window:N',sort=windows,axis=alt.Axis(labelAngle=0),title=None),
+        y=alt.Y('Weight:Q',axis=alt.Axis(format='%')),
+        color=alt.Color('Fund:N',scale=alt.Scale(domain=list(FUND_COLORS),range=list(FUND_COLORS.values())),legend=alt.Legend(orient='bottom',columns=7)),
+        tooltip=['Window','Fund','Actual start','Actual end',alt.Tooltip('Weight:Q',format='.1%')]).properties(height=240),width='stretch')
+    st.caption('A 20-year request uses only available common history. These overlapping windows describe sensitivity; they are not independent tests.')
+    st.markdown('**One-month tail-loss objective · gross returns before fees**')
+    st.write(f"CVaR uses all {tail_audit['scenario_count']:,} overlapping 21-session historical windows, shifted to the stated cash/log-growth assumptions. It does not optimize a multi-year maximum drawdown. The window pool and future generators share historical calibration.")
+    st.latex(r'\min_{w,\eta,u}\ \eta+\frac{1}{0.05N}\sum_s u_s,\quad u_s\ge -R_s^Tw-\eta,\ u_s\ge0')
+    st.json(tail_audit)
+    st.latex(r'\min_w\ w_{risk}^{T}\widehat\Sigma_{weekly}\,w_{risk}\quad\mathrm{s.t.}\quad\mathbf1^Tw=1,\ w\ge0')
+    st.json(dict(cash_fixed=cash,equity_minimum=equity,single_risky_cap=cap,commodity_cap=commodity,oil_cap=.1,
+        covariance_observations=cal.weekly_observations,covariance_through=cal.weekly_last,eigenvalue_floor=cal.eigenvalue_floor,solver='Clarabel'))
 
 
 def _audit(cal,meta,synthetic,premium,cash_rate):

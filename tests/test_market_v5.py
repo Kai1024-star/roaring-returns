@@ -158,6 +158,30 @@ class MarketModelTests(unittest.TestCase):
         for group in groups:self.assertEqual(labels[group['representative']],group['group']-1)
         self.assertEqual(groups,scenario_groups(r)[0])
 
+    def test_display_uses_paired_paths_and_initial_dollars_after_fees(self):
+        from roaring_returns.market_presentation import comparison_rows
+        b=Budget(savings=1000,emergency_reserve=0,near_term=0,monthly=100,months=2)
+        w=balanced_example(self.symbols)
+        r=simulate(self.cal,b,w,paths=3,cost_bps=25)
+        # Identical marginal medians, different paired outcome distribution.
+        reference=r.wealth.copy();reference[:,-1]=[100,101,1000]
+        candidate=r.wealth.copy();candidate[:,-1]=[1000,100,101]
+        name='Candidate';control='Feasible equal-weight control'
+        rows=comparison_rows(self.cal,{name:w,control:w},
+            {name:replace(r,wealth=candidate),control:replace(r,wealth=reference)},
+            one_month_scenarios(self.cal),b.initial)
+        self.assertEqual(rows[0]['paired'][1],-1)
+        self.assertEqual(rows[0]['summary']['ending_median'],rows[1]['summary']['ending_median'])
+        self.assertAlmostEqual(sum(rows[0]['initial_holdings'])+rows[0]['initial_fee'],b.initial)
+        self.assertAlmostEqual(rows[0]['monthly_cvar_dollars'],1000*rows[0]['monthly_cvar'])
+        broken=replace(r,deposits=r.deposits+1)
+        with self.assertRaises(ValueError):
+            comparison_rows(self.cal,{name:w,control:w},{name:broken,control:r},one_month_scenarios(self.cal),b.initial)
+        empty=simulate(self.cal,replace(b,savings=0,monthly=0),w,paths=3)
+        unfunded=comparison_rows(self.cal,{control:w},{control:empty},one_month_scenarios(self.cal),0)[0]
+        self.assertIsNone(unfunded['summary']['p95_drawdown'])
+        self.assertIsNone(unfunded['monthly_cvar_dollars'])
+
 
 class MarketUITests(unittest.TestCase):
     def test_offline_workspace_and_all_views_and_generator(self):
@@ -182,6 +206,15 @@ class MarketUITests(unittest.TestCase):
                 next(r for r in app.radio if r.label=='Explore').set_value(name).run()
                 self.assertFalse(app.exception)
                 self.assertEqual(next(n for n in app.number_input if n.label=='Investable now ($)').value,1700.)
+            next(r for r in app.radio if r.label=='Explore').set_value('Optimize').run()
+            next(s for s in app.selectbox if s.label=='Allocation to explore').set_value('Scenario downside optimizer').run()
+            next(b for b in app.button if b.label=='Simulate this allocation').click().run()
+            self.assertFalse(app.exception)
+            self.assertEqual(app.session_state.market_view,'Simulation')
+            self.assertEqual(app.session_state.market_allocation,'Scenario downside optimizer')
+            self.assertEqual(app.session_state.market_focus,'Portfolio')
+            self.assertEqual(app.session_state.market_seed,20261023)
+            self.assertEqual(next(n for n in app.number_input if n.label=='Investable now ($)').value,1700.)
         market_ui._market.clear()
 
 

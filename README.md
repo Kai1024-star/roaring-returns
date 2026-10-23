@@ -41,8 +41,11 @@ and Treasury funds have price and duration risk. Raw data is not redistributed.
   daily returns and weekly correlations. Data updates require an explicit fetch.
 - **Optimize**: fixed cash, equity minimum, individual/commodity/oil caps;
   constrained minimum variance and full-window one-month CVaR, with an equal-
-  capital reference projected onto the same feasible set. Weight-window
-  stability and binding constraints expose how much the result depends on inputs.
+  capital reference projected onto the same feasible set. A comparison workbench
+  connects these objectives to dollar outcomes, paired differences on identical
+  paths, initial holdings after fees and full-horizon return drawdown.
+  “Simulate this allocation” preserves the budget and model settings. Window
+  sensitivity, binding constraints and formulas remain in research details.
 - **Model audit**: assumptions, observed tails versus normal tails, raw/model
   correlations and snapshot provenance.
 
@@ -66,9 +69,11 @@ Start on **Budget planner**: separate protected cash, enter monthly saving and
 a time horizon, then compare fixed examples, a custom mix and a solved risk-balanced
 candidate. The main chart separates **investment P&L**, **returns excluding deposits**,
 and **account balance**, with a daily return-drawdown panel and cash benchmark.
-A rising balance from deposits is no longer presented as investment performance.
+Up to four examples can now be overlaid on the same historical dates, with
+interactive date inspection, replay controls and a marked maximum return
+drawdown. A rising balance from deposits is not presented as investment performance.
 
-![Investment performance and drawdown](docs/demo/budget_v4_performance.jpg)
+![Historical examples compared on the same dates](docs/demo/budget_v5_replay.jpg)
 
 The model uses joint whole-month blocks with daily valuation, three explicit
 excess-return assumptions and a 3/6/12-month × two-window sensitivity grid.

@@ -302,3 +302,47 @@ GBM switching, P&L/return views, animation/pause/reset/keyboard stepping, observ
 stock/gold/oil/Treasury curves, and the final optimizer page. Integration tests
 also verify fresh random batches, USO inspection and budget retention across all
 four views. Public preview images use the made-up default account.
+
+
+## 2026-10-22 — comparison and replay presentation review
+
+User feedback identified research diagnostics presented as a main product flow,
+single-series replays with comparisons buried in tables, sparse date labels,
+reused fund colors and alphabetically sorted estimation windows. Actual Claude
+desktop review independently confirmed these issues and recommended same-path
+paired differences, visible model sensitivity, distinct P&L/drawdown semantics,
+and action wording that opens a simulation rather than suggesting trade orders.
+
+The Optimize view now presents four fixed-order objectives with common draws,
+a dollar endpoint interval comparison, paired differences versus the constrained
+reference, P95 daily return drawdown, and initial fee-adjusted holdings. The
+one-month gross fitted tail loss is explicitly separated from multi-year net
+outcomes; it uses the initial budget only. A real callback carries the selected
+allocation and existing settings to the Simulation view. Detailed formulas,
+constraints and historical sensitivity are collapsed. Fund colors are unique
+and stable; window order is explicitly chronological by length.
+
+Budget planner replays now compare up to four examples on the same daily dates.
+The selected example remains bold and controls the ledger; toggles affect only
+comparison visibility. P&L is the default. Negative-P&L/negative-cumulative-return
+shading is labeled separately from NAV drawdown. Dates, inspection readouts,
+play/pause/reset, keyboard timeline and the maximum drawdown marker are present.
+Cash-proxy fluctuations are preserved; selected stress episodes are identified
+as deliberately difficult periods. Public preview images use made-up defaults.
+
+Claude's focused source/probe review found no substantive accounting or
+interaction inconsistency. Follow-up cleanup maps objective colors/labels by
+canonical name rather than insertion index. Browser checks verified overlays,
+the four-line limit, view and episode changes, date inspection, timeline keys,
+play/pause/reset and simulation handoff. At 390px and 1280px viewports, content
+has no horizontal overflow. A Streamlit 1.57 iframe sizing feedback issue found
+during resizing was corrected with intrinsic-card dimension reports; width
+changes now shrink as well as expand the frame. These messages carry only pixel
+dimensions, never entered budgets.
+
+All 88 tests pass. Added coverage distinguishes paired quantiles from differences
+of marginal quantiles, checks initial dollar/fee reconciliation and unfunded
+risk display, and exercises allocation handoff with preserved budget/seed and
+portfolio focus. The original market (32 cases), planner (42 cases), and
+execution (36 ETF + 36 synthetic cases) audit scripts still pass. No numerical
+engine, historical order path or published numerical export was changed.

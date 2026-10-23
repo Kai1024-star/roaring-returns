@@ -41,7 +41,14 @@ def _money(value):
     return f"${value:,.0f}" if value >= 0 else f"−${abs(value):,.0f}"
 
 
-def _animate(result, reference, settings, real, note):
+def _journey_series(name, result, settings, real):
+    displayed = dollar_units(result, settings.inflation, real)
+    return dict(name=name, values=displayed['wealth'][0].round(4).tolist(),
+                nav=[float(v) if ok else None for v, ok in zip(result.nav[0], result.return_valid[0])],
+                drawdowns=[float(v) if ok else None for v, ok in zip(result.drawdown_path[0], result.return_valid[0])])
+
+
+def _animate(result, reference, settings, real, note, comparisons=None, selected=None):
     displayed = dollar_units(result,settings.inflation,real)
     reference_display = dollar_units(reference,settings.inflation,real)
     payload = {"values": displayed['wealth'][0].round(4).tolist(),
@@ -52,7 +59,9 @@ def _animate(result, reference, settings, real, note):
                "nav": [float(v) if ok else None for v, ok in zip(result.nav[0], result.return_valid[0])],
                "referenceValues": reference_display['wealth'][0].round(4).tolist(),
                "referenceNav": [float(v) if ok else None for v, ok in zip(reference.nav[0], reference.return_valid[0])],
-               "note": note, "unit": result.period_unit, "dates": result.dates}
+               "note": note, "unit": result.period_unit, "dates": result.dates,
+               "selected": selected or 'Selected path',
+               "comparisons": [_journey_series(n, r, settings, real) for n, r in (comparisons or {}).items()]}
     template = (Path(__file__).parent/"assets/journey.html").read_text()
     st.iframe(template.replace("__DATA__", json.dumps(payload, allow_nan=False).replace("</", "<\\/")), height="content", tab_index=0)
 
@@ -186,7 +195,7 @@ def render():
     st.caption('Cash is inside this pot; protected money stays outside. SPY is a US large-cap proxy; gold and the 7–10y Treasury fund can lose value. Risk-balanced weights above are fitted using data through '+str(prices.index[-1].date())+'.')
     tabs = st.tabs(['Stress first','Possible paths','Build & optimize','Compare choices','Inside the model'])
     with tabs[0]:
-        st.subheader('Separate saving money from investment performance')
+        st.subheader('One difficult market. Different choices.')
         historical_mixes = dict(mixes)
         if not synthetic:
             episodes = {'2022 · rising rates':('2022-01-01','2022-12-31'),
@@ -213,8 +222,8 @@ def render():
             active=stress_results[selected]
             st.caption('Synthetic demonstration: designed monthly shocks, not historical observations or daily risk estimates.')
         reference=stress_results['Savings reference']
-        performance_metrics(active,reference)
-        _animate(active,reference,settings,False,episode+' · '+selected+'.')
+        _animate(active,reference,settings,False,episode+' · '+selected+'.',stress_results,selected)
+        st.caption('All examples below face the same observed dates and the same deposits. Toggle an example in the chart legend to compare it with the selected one. Hover or move the timeline to inspect a date. These are deliberately selected difficult periods, not typical markets or future predictions.')
         if active.maximum_dip[0] > budget.comfortable_dip+1e-7:
             st.warning(f'The account fell by {_money(active.maximum_dip[0])} from its deposit-adjusted high-water mark, above your {_money(budget.comfortable_dip)} comparison line.'.replace('$',r'\$'))
         else:
@@ -225,10 +234,11 @@ def render():
             replay_rows.append({'Example':name,'Deposits ($)':r.contributed[-1],'Net P&L ($)':r.wealth[0,-1]-r.contributed[-1],
                 'Cumulative return':r.nav[0,-1]-1 if valid else None,'Return drawdown':r.max_drawdown[0] if valid else None,
                 'Dollar dip ($)':r.maximum_dip[0],'Fees ($)':r.fees[0]})
-        st.dataframe(pd.DataFrame(replay_rows),hide_index=True,width='stretch',column_config={
-            **{n:st.column_config.NumberColumn(format='$%.2f') for n in ['Deposits ($)','Net P&L ($)','Dollar dip ($)','Fees ($)']},
-            **{n:st.column_config.NumberColumn(format='percent') for n in ['Cumulative return','Return drawdown']}})
         with st.expander('Explain every dollar in this replay'):
+            performance_metrics(active,reference)
+            st.dataframe(pd.DataFrame(replay_rows),hide_index=True,width='stretch',column_config={
+                **{n:st.column_config.NumberColumn(format='$%.2f') for n in ['Deposits ($)','Net P&L ($)','Dollar dip ($)','Fees ($)']},
+                **{n:st.column_config.NumberColumn(format='percent') for n in ['Cumulative return','Return drawdown']}})
             attribution(active)
         if not synthetic:
             with st.expander('Underlying market returns · advanced benchmark'):

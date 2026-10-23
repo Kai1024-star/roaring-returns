@@ -129,3 +129,35 @@ capital scaling, funding dates, fractional CVaR, independent HiGHS CVaR and SciP
 minimum-variance solves, scenario partition/membership, source hash corruption,
 and clean-checkout UI interaction. The prior planner/research numeric files
 and their published outcomes remain unchanged.
+
+## Reading the comparison workspace
+
+The Optimize view compares four objectives in a fixed order, without a winner
+badge or ranking. Every candidate is evaluated using the same budget, seed,
+asset-return draws and monthly trading policy. P5/median/P95 are model-conditional
+endpoint summaries after fees, displayed as either nominal balance or net P&L.
+The balance axis zooms to the outcome range and is labeled accordingly.
+
+The second interval chart first subtracts the same-constraint reference on
+**each path ID**, then takes quantiles of those differences. It does not subtract
+unpaired quantiles. Initial dollar holdings come from the fee-adjusted ledger;
+initial fees are shown separately. The gross one-month fitted CVaR is scaled
+only by the initial budget, excludes future deposits/fees, and is separate from
+P95 multi-year daily return drawdown. With zero starting capital the fitted
+CVaR is displayed as a percentage; unfunded return drawdown stays unavailable.
+
+The cross-generator control offers an assumption check using GBM and joint
+blocks. Both depend on the same historical calibration; the comparison is not
+held-out validation. “Simulate this allocation” preserves budget, weights,
+generator, seed and assumptions and restores portfolio inspection. Research
+formulas, binding constraints and estimation sensitivity sit in collapsed
+details. Window order is explicitly 3/5/10/20 years; all 13 funds have stable,
+unique colors across observed-market and diagnostic charts.
+
+The Budget planner historical replay now overlays up to four examples with
+identical deposits and dates. The selected example remains bold and controls
+the displayed holdings and ledger; comparison toggles do not silently change
+it. Hover/date stepping updates the inspection values. Net P&L is the default,
+negative-P&L shading means below cumulative deposits, and return drawdown is a
+separate daily unitized-NAV chart. The cash proxy is not smoothed. These stress
+periods were selected deliberately and do not represent typical markets.
